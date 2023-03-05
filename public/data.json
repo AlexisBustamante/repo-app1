@@ -1,0 +1,58 @@
+{
+    "datos":  [{
+                "id": 1,
+                "title": "Boletin Ingles Secundaria ",
+                "description": "Boletin utilizado en AR para la evaluacion del subsector ingles y sus Asignaturas ",
+                "urlExample": "/examples_img/BoletinInglesSecundaria.png",
+                "urlScriptPHP": "/script_download/BoletinInglesSecundaria.php",
+                "fileName": "Boletin Ingles Secundaria.php",
+                "filePDF": "Boletin Ingles Secundaria.pdf",
+                "urlExamplePDF":"/examples/BoletinInglesSecundaria.pdf"
+
+            },
+            {
+                "id": 2,
+                "title": "Boletin Oficial Secundaria ",
+                "description": "Boletin utilizado en AR para la evaluacion de los subsectores oficiales de secundaria ",
+                "urlExample": "/examples_img/BoletinOficialSecundaria.png",
+                "urlScriptPHP": "/script_download/BoletinOficialSecundaria.php",
+                "fileName": "BoletinOficialSecundaria.php",
+                "filePDF": "BoletinOficialSecundaria.pdf",
+                "urlExamplePDF":"/examples/BoletinOficialSecundaria.pdf"
+
+            },
+            {
+                "id": 3,
+                "title": "Boletin Primaria  Castellano ",
+                "description": "Boletin utilizado en AR para la evaluacion del subsector Castellano Primaria ",
+                "urlExample": "/examples_img/BoletinPrimariaCastellano.png",
+                "urlScriptPHP": "/script_download/BoletinPrimariaCastellano.php",
+                "fileName": "BoletinPrimariaCastellano.php",
+                "filePDF": "BoletinPrimariaCastellano.pdf",
+                "urlExamplePDF":"/examples/BoletinPrimariaCastellano.pdf"
+
+            },
+            {
+                "id": 4,
+                "title": "Boletin Secundaria  Trimestral ",
+                "description": "Boletin que obtiene las calificaciones , inasistencias por todo periodo configurado. ",
+                "urlExample": "/examples_img/BoletinSecundariaTrimestre.png",
+                "urlScriptPHP": "/script_download/BoletinSecundariaTrimestre.php",
+                "fileName": "BoletinSecundariaTrimestre.php",
+                "filePDF": "BoletinSecundariaTrimestre.pdf",
+                "urlExamplePDF":"/examples/BoletinSecundariaTrimestre.pdf"
+
+            },
+            {
+                "id": 5,
+                "title": "Boletin Primaria Trimestral ",
+                "description": "Boletin que obtiene las calificaciones , inasistencias por todo periodo configurado. ",
+                "urlExample": "/examples_img/BoletinPrimariaTrimestral.png",
+                "urlScriptPHP": "/script_download/BoletinPrimariaTrimestral.php",
+                "fileName": "BoletinPrimariaTrimestral.php",
+                "filePDF": "BoletinPrimariaTrimestral.pdf",
+                "urlExamplePDF":"/examples/BoletinPrimariaTrimestral.pdf"
+            }
+
+        ]
+}
