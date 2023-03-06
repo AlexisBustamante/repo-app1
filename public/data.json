@@ -52,6 +52,16 @@
                 "fileName": "BoletinPrimariaTrimestral.php",
                 "filePDF": "BoletinPrimariaTrimestral.pdf",
                 "urlExamplePDF":"/examples/BoletinPrimariaTrimestral.pdf"
+            },
+            {
+                "id": 6,
+                "title": "Boletin Calificaciones TC ",
+                "description": "Boletin que obtiene las calificaciones de acuerdo al ciclo algunos campos quedan fijos ",
+                "urlExample": "/examples_img/BoletindeCalificacionesTC.png",
+                "urlScriptPHP": "/script_download/BoletindeCalificacionesTC.php",
+                "fileName": "BoletindeCalificacionesTC.php",
+                "filePDF": "BoletindeCalificacionesTC.pdf",
+                "urlExamplePDF":"/examples/BoletindeCalificacionesTC.pdf"
             }
 
         ]
