@@ -86,9 +86,7 @@
 
     <v-main>
         <!--  -->
-
         <v-container>
-
             <v-row v-if="pdfsrc">
                 <img :src="pdfsrc" alt="">
             </v-row>
@@ -184,7 +182,6 @@ export default {
         this.pdfsrc = ''
         this.pdfList = data.datos
         this.pdfListAll = data.datos
-        console.log(this.pdfList);
     }
 }
 </script>

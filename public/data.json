@@ -62,7 +62,16 @@
                 "fileName": "BoletindeCalificacionesTC.php",
                 "filePDF": "BoletindeCalificacionesTC.pdf",
                 "urlExamplePDF":"/examples/BoletindeCalificacionesTC.pdf"
+            },
+            {
+                "id": 7,
+                "title": "Boletin  Oficial Secundaria Guadalupe ",
+                "description": "Boletin que obtiene las calificaciones de acuerdo al ciclo, es d eun colegio especifico ",
+                "urlExample": "/examples_img/BoletinOficialSecundariaGuadalupe.png",
+                "urlScriptPHP": "/script_download/BoletinOficialSecundariaGuadalupe.php",
+                "fileName": "BoletinOficialSecundariaGuadalupe.php",
+                "filePDF": "BoletinOficialSecundariaGuadalupe.pdf",
+                "urlExamplePDF":"/examples/BoletinOficialSecundariaGuadalupe.pdf"
             }
-
         ]
 }
