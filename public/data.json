@@ -72,6 +72,16 @@
                 "fileName": "BoletinOficialSecundariaGuadalupe.php",
                 "filePDF": "BoletinOficialSecundariaGuadalupe.pdf",
                 "urlExamplePDF":"/examples/BoletinOficialSecundariaGuadalupe.pdf"
+            },
+            {
+                "id": 8,
+                "title": "Boletin Secundaria SEC",
+                "description": "Boletin que obtiene las calificaciones por periodo secundaria SEC ",
+                "urlExample": "/examples_img/BoletinSecundariaSEC.png",
+                "urlScriptPHP": "/script_download/BoletinSecundariaSEC.php",
+                "fileName": "BoletinSecundariaSEC.php",
+                "filePDF": "BoletinSecundariaSEC.pdf",
+                "urlExamplePDF":"/examples/BoletinSecundariaSEC.pdf"
             }
         ]
 }

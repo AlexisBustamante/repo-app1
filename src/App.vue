@@ -53,12 +53,12 @@
                             <v-icon>mdi-language-php</v-icon>
                         </v-btn>
                     </a>
-
+<!-- 
                     <a style="text-decoration: none;" :href=item.urlExamplePDF :download="item.filePDF">
                         <v-btn rounded color="error" dark>
                             <v-icon>mdi-file-pdf-box</v-icon>
                         </v-btn>
-                    </a>
+                    </a> -->
                 </v-list-item-subtitle>
 
             </v-list-item-content>
@@ -88,7 +88,10 @@
         <!--  -->
         <v-container>
             <v-row v-if="pdfsrc">
-                <img :src="pdfsrc" alt="">
+                <!-- <img :src="pdfsrc" alt=""> -->
+                
+                <iframe :src="pdfsrc2" height="1200px" width="100%"></iframe>
+
             </v-row>
             <v-row v-else>
 
@@ -125,6 +128,7 @@ export default {
         itemSelected: {},
         selectedPdf: './BoletinInglesSecundaria.pdf',
         pdfsrc: null,
+        pdfsrc2: null,
         loading4: false,
         drawer: null,
         pdfList: [],
@@ -155,6 +159,7 @@ export default {
     methods: {
         wacthpdf(item) {
             this.pdfsrc = item.urlExample;
+            this.pdfsrc2 = item.urlExamplePDF;
             this.itemSelected = item
         },
 
