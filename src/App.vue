@@ -225,7 +225,7 @@
 
 <script>
 import WelcomeHome from "./components/WelcomeHome";
-// import data from "/public/data.json";
+ import data from "/public/data.json";
 import {
   storage,
   db,
@@ -393,7 +393,7 @@ export default {
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
-      console.log(item);
+      //console.log(item);
     },
     addFileDialog() {
       this.title = "";
@@ -434,11 +434,11 @@ export default {
 
   async created() {
     //aca debemos leer firestore
-    await this.getDocuments();
-    console.log(this.pdfList);
+    //await this.getDocuments();
+    //console.log(this.pdfList);
     this.pdfsrc = "";
-    //this.pdfList = data.datos;
-    //this.pdfListAll = this.pdfList;
+    this.pdfList = data.datos;
+    this.pdfListAll = this.pdfList;
   },
 };
 </script>

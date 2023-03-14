@@ -3,85 +3,68 @@
                 "id": 1,
                 "title": "Boletin Ingles Secundaria ",
                 "description": "Boletin utilizado en AR para la evaluacion del subsector ingles y sus Asignaturas ",
-                "urlExample": "/examples_img/BoletinInglesSecundaria.png",
-                "urlScriptPHP": "/script_download/BoletinInglesSecundaria.php",
-                "fileName": "Boletin Ingles Secundaria.php",
-                "filePDF": "Boletin Ingles Secundaria.pdf",
-                "urlExamplePDF":"/examples/BoletinInglesSecundaria.pdf"
+                "phpFile": "/script_download/BoletinInglesSecundaria.php",
+                "pdfFile":"/examples/BoletinInglesSecundaria.pdf"
 
             },
             {
                 "id": 2,
                 "title": "Boletin Oficial Secundaria ",
                 "description": "Boletin utilizado en AR para la evaluacion de los subsectores oficiales de secundaria ",
-                "urlExample": "/examples_img/BoletinOficialSecundaria.png",
-                "urlScriptPHP": "/script_download/BoletinOficialSecundaria.php",
-                "fileName": "BoletinOficialSecundaria.php",
-                "filePDF": "BoletinOficialSecundaria.pdf",
-                "urlExamplePDF":"/examples/BoletinOficialSecundaria.pdf"
+                "phpFile": "/script_download/BoletinOficialSecundaria.php",
+                "pdfFile":"/examples/BoletinOficialSecundaria.pdf"
 
             },
             {
                 "id": 3,
                 "title": "Boletin Primaria  Castellano ",
                 "description": "Boletin utilizado en AR para la evaluacion del subsector Castellano Primaria ",
-                "urlExample": "/examples_img/BoletinPrimariaCastellano.png",
-                "urlScriptPHP": "/script_download/BoletinPrimariaCastellano.php",
-                "fileName": "BoletinPrimariaCastellano.php",
-                "filePDF": "BoletinPrimariaCastellano.pdf",
-                "urlExamplePDF":"/examples/BoletinPrimariaCastellano.pdf"
+                "phpFile": "/script_download/BoletinPrimariaCastellano.php",
+                "pdfFile":"/examples/BoletinPrimariaCastellano.pdf"
 
             },
             {
                 "id": 4,
                 "title": "Boletin Secundaria  Trimestral ",
                 "description": "Boletin que obtiene las calificaciones , inasistencias por todo periodo configurado. ",
-                "urlExample": "/examples_img/BoletinSecundariaTrimestre.png",
-                "urlScriptPHP": "/script_download/BoletinSecundariaTrimestre.php",
-                "fileName": "BoletinSecundariaTrimestre.php",
-                "filePDF": "BoletinSecundariaTrimestre.pdf",
-                "urlExamplePDF":"/examples/BoletinSecundariaTrimestre.pdf"
+                "phpFile": "/script_download/BoletinSecundariaTrimestre.php",
+                "pdfFile":"/examples/BoletinSecundariaTrimestre.pdf"
 
             },
             {
                 "id": 5,
                 "title": "Boletin Primaria Trimestral ",
                 "description": "Boletin que obtiene las calificaciones , inasistencias por todo periodo configurado. ",
-                "urlExample": "/examples_img/BoletinPrimariaTrimestral.png",
-                "urlScriptPHP": "/script_download/BoletinPrimariaTrimestral.php",
-                "fileName": "BoletinPrimariaTrimestral.php",
-                "filePDF": "BoletinPrimariaTrimestral.pdf",
-                "urlExamplePDF":"/examples/BoletinPrimariaTrimestral.pdf"
+                "phpFile": "/script_download/BoletinPrimariaTrimestral.php",
+                "pdfFile":"/examples/BoletinPrimariaTrimestral.pdf"
             },
             {
                 "id": 6,
                 "title": "Boletin Calificaciones TC ",
                 "description": "Boletin que obtiene las calificaciones de acuerdo al ciclo algunos campos quedan fijos ",
-                "urlExample": "/examples_img/BoletindeCalificacionesTC.png",
-                "urlScriptPHP": "/script_download/BoletindeCalificacionesTC.php",
-                "fileName": "BoletindeCalificacionesTC.php",
-                "filePDF": "BoletindeCalificacionesTC.pdf",
-                "urlExamplePDF":"/examples/BoletindeCalificacionesTC.pdf"
+                "phpFile": "/script_download/BoletindeCalificacionesTC.php",
+                "pdfFile":"/examples/BoletindeCalificacionesTC.pdf"
             },
             {
                 "id": 7,
                 "title": "Boletin  Oficial Secundaria Guadalupe ",
                 "description": "Boletin que obtiene las calificaciones de acuerdo al ciclo, es d eun colegio especifico ",
-                "urlExample": "/examples_img/BoletinOficialSecundariaGuadalupe.png",
-                "urlScriptPHP": "/script_download/BoletinOficialSecundariaGuadalupe.php",
-                "fileName": "BoletinOficialSecundariaGuadalupe.php",
-                "filePDF": "BoletinOficialSecundariaGuadalupe.pdf",
-                "urlExamplePDF":"/examples/BoletinOficialSecundariaGuadalupe.pdf"
+                "phpFile": "/script_download/BoletinOficialSecundariaGuadalupe.php",
+                "pdfFile":"/examples/BoletinOficialSecundariaGuadalupe.pdf"
             },
             {
                 "id": 8,
                 "title": "Boletin Secundaria SEC",
                 "description": "Boletin que obtiene las calificaciones por periodo secundaria SEC ",
-                "urlExample": "/examples_img/BoletinSecundariaSEC.png",
-                "urlScriptPHP": "/script_download/BoletinSecundariaSEC.php",
-                "fileName": "BoletinSecundariaSEC.php",
-                "filePDF": "BoletinSecundariaSEC.pdf",
-                "urlExamplePDF":"/examples/BoletinSecundariaSEC.pdf"
+                "phpFile": "/script_download/BoletinSecundariaSEC.php",
+                "pdfFile":"/examples/BoletinSecundariaSEC.pdf"
+            },
+            {
+                "id": 9,
+                "title": "Boletin Primaria Castellano Portezuelo",
+                "description": "Boletin primaria con 2 periodos y final de ciclo ",
+                "phpFile": "/script_download/BoletinPrimariaCastellanoPortezuelo.php",
+                "pdfFile":"/examples/BoletinPrimariaCastellanoPortezuelo.pdf"
             }
         ]
 }
