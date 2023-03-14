@@ -6,16 +6,49 @@
       <v-icon>mdi-circle</v-icon>
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
+
+    <!-- FORMULARIO DE INGRESO QUE PUEDE SER UN COMPONENTE. -->
+    <v-snackbar
+      :timeout="timeout"
+      v-model="snackbar"
+      :vertical="vertical"
+      :color="snacktype.color"
+    >
+      <p>
+        <v-icon>{{ snacktype.icon }}</v-icon
+        >{{ snacktype.msg }}.
+      </p>
+    </v-snackbar>
     <v-row justify="center">
       <v-dialog v-model="dialog" persistent max-width="600px">
         <v-card>
-          <v-toolbar color="#11334d">
-            <span class="text-h5" style="color: white">Upload new Template</span>
+          <v-toolbar v-show="loading ? false : true" color="#11334d">
+            <span class="text-h5" style="color: white">Nuevo Documento</span>
           </v-toolbar>
+
           <v-card-text>
-            <v-container>
+            <v-container v-if="loading ? true : false">
+              <v-row class="fill-height" align-content="center" justify="center">
+                <v-col class="text-subtitle-1 text-center" cols="12">
+                  Subiendo Archivos a la Nube ...
+                </v-col>
+                <v-col class="text-subtitle-1 text-center" cols="12">
+                  <v-icon x-large>mdi-cloud-arrow-up-outline</v-icon>
+                </v-col>
+
+                <v-col cols="6">
+                  <v-progress-linear
+                    color="primary"
+                    indeterminate
+                    rounded
+                    height="6"
+                  ></v-progress-linear>
+                </v-col>
+              </v-row>
+            </v-container>
+            <v-container v-if="loading ? false : true">
               <v-form ref="formNewDocument">
-                <!-- <v-text-field
+                <v-text-field
                   outlined
                   v-model="title"
                   label="Title"
@@ -27,15 +60,14 @@
                   v-model="description"
                   label="Description"
                   required
-                ></v-textarea> -->
+                ></v-textarea>
                 <v-row>
-                  <v-col cols="10">
+                  <v-col cols="12">
                     <v-file-input
                       prepend-icon="mdi-file-pdf-box"
                       outlined
                       chips
                       multiple
-                      color="deep-purple accent-4"
                       counter
                       dense
                       show-size
@@ -48,7 +80,7 @@
                 </v-row>
 
                 <v-row>
-                  <v-col cols="10">
+                  <v-col cols="12">
                     <v-file-input
                       prepend-icon="mdi-language-php"
                       outlined
@@ -65,10 +97,11 @@
                   </v-col>
                 </v-row>
               </v-form>
+              <small>*indicates required field</small>
             </v-container>
-            <small>*indicates required field</small>
           </v-card-text>
-          <v-card-actions>
+
+          <v-card-actions v-if="loading ? false : true">
             <v-spacer></v-spacer>
             <v-btn color="red darken-1" text @click.prevent="dialog = false">
               Close
@@ -79,7 +112,7 @@
       </v-dialog>
     </v-row>
 
-    <v-app-bar color="#11334d" dark app clipped-right flat height="72">
+    <v-app-bar color="#11334d" dark app clipped-right flat height="60">
       <v-app-bar-title>
         {{ pdfsrc != "" ? itemSelected.title : "" }}
       </v-app-bar-title>
@@ -108,7 +141,7 @@
               size="28"></v-avatar> -->
       </v-navigation-drawer>
 
-      <v-sheet class="pl-16 pa-3" color="#11334d" height="72" width="100%">
+      <v-sheet class="pl-16 pa-3" color="#11334d" height="60" width="100%">
         <v-text-field
           dark
           v-model="search"
@@ -122,34 +155,35 @@
         ></v-text-field>
       </v-sheet>
 
-      <v-list-item
-        class="pl-16"
-        three-line
-        v-for="item in searching"
-        :key="item.id"
-        link
-        v-on:click="wacthpdf(item)"
-      >
-        <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-          <v-list-item-subtitle>
-            {{ item.description }}
-          </v-list-item-subtitle>
-          <v-list-item-subtitle class="pa-1">
-            <a class="pa-2" :href="item.urlScriptPHP" :download="item.fileName">
-              <v-btn rounded color="primary" dark>
-                <v-icon>mdi-language-php</v-icon>
-              </v-btn>
-            </a>
-            <!-- 
+      <v-list-item-group v-model="selectedItem" color="primary">
+        <v-list-item
+          class="pl-16"
+          three-line
+          v-for="item in searching"
+          :key="item.id"
+          link
+          v-on:click="wacthpdf(item)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-subtitle>
+              {{ item.description }}
+            </v-list-item-subtitle>
+            <v-list-item-subtitle class="pa-1">
+              <v-icon color="primary" x-large @click="DownloadFromUrl(item)"
+                >mdi-language-php</v-icon
+              >
+              <!-- 
                         <a style="text-decoration: none;" :href=item.urlExamplePDF :download="item.filePDF">
                             <v-btn rounded color="error" dark>
                                 <v-icon>mdi-file-pdf-box</v-icon>
                             </v-btn>
                         </a> -->
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+
       <!-- //esta es la lista original -->
       <!-- <v-list class="pl-14" shaped>
             <v-list-item v-for="item in pdfList" :key="item.id" link>
@@ -160,7 +194,7 @@
           </v-list> -->
     </v-navigation-drawer>
 
-    <!-- <v-navigation-drawer app clipped right>
+    <!--LA COLUMNA DERECHA <v-navigation-drawer app clipped right>
           <v-list lines="three">
             <v-list-item v-for="n in 5" :key="n" link>
               <v-list-item-content>
@@ -175,30 +209,10 @@
       <v-container>
         <v-row v-if="pdfsrc">
           <!-- <img :src="pdfsrc" alt=""> -->
-
           <iframe :src="pdfsrc2" height="1200px" width="100%"></iframe>
         </v-row>
         <v-row v-else>
-          <v-timeline align-top :dense="$vuetify.breakpoint.smAndDown">
-            <v-timeline-item
-              v-for="(item, i) in items"
-              :key="i"
-              :color="item.color"
-              :icon="item.icon"
-              fill-dot
-            >
-              <v-card :color="item.color" dark>
-                <v-card-title class="text-h6">
-                  {{ item.title }}
-                </v-card-title>
-                <v-card-text class="white text--primary">
-                  <p>
-                    {{ item.description }}
-                  </p>
-                </v-card-text>
-              </v-card>
-            </v-timeline-item>
-          </v-timeline>
+          <welcome-home></welcome-home>
         </v-row>
       </v-container>
     </v-main>
@@ -210,64 +224,66 @@
 </template>
 
 <script>
-import data from "/public/data.json";
-import { storage, ref, uploadBytesResumable, getDownloadURL } from "./firebase.js";
-import {config} from '../config/config.js'
-console.log(config);
+import WelcomeHome from "./components/WelcomeHome";
+// import data from "/public/data.json";
+import {
+  storage,
+  db,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  collection,
+  addDoc,
+  getDocs,
+} from "./firebase.js";
 
 export default {
   data: () => ({
+    selectedItem: 0,
     progress: null,
+    loading: false,
+    dialog: false,
+    snackbar: false,
     search: "",
     title: "",
     description: "",
-    dialog: true,
+    vertical: true,
     itemSelected: {},
-    selectedPdf: "./BoletinInglesSecundaria.pdf",
     pdfsrc: null,
     pdfsrc2: null,
-    loading4: false,
+    timeout: 5000, //3seg
     drawer: null,
     pdfFile: "",
     phpFile: "",
     pdfList: [],
+    snacktype: {
+      color: "",
+      icon: "",
+      msg: "",
+    },
     uploadValue: 0,
-    rules: [(v) => v.length >= 20 || "Min 20 characters"],
-    rulesDesc: [(v) => v.length <= 100 || "Max 30 characters"],
+    rules: [(v) => v.length >= 10 || "Min 10 characters"],
+    rulesDesc: [(v) => v.length <= 100 || "Max 100 characters"],
     wordsRules: [(v) => v.trim().split(" ").length <= 5 || "Max 5 words"],
     pdfListAll: [],
-    items: [
-      {
-        color: "indigo",
-        icon: "mdi-magnify",
-        title: "Busca un informe",
-        description:
-          "Busca un ejemplo del informe que tienes que desarrollar a travez del nombre o titulo del mismo.",
-      },
-      {
-        title: "Visualiza un ejemplo",
-        color: "green lighten-1",
-        icon: "mdi-eye-check-outline",
-        description:
-          "selecciona el informe que buscaste para poder ver un ejemplo del informe, así sabrás graficamente si es lo que necesitas. ",
-      },
-      {
-        color: "purple darken-1",
-        icon: "mdi-book-variant",
-        title: "Descarga el Script",
-        description:
-          "Descarga todo el codigo fuente del ejemplo el cual  te permitirá crear  el informe con una base de HTML,CSS y PHP sin tener que empezar de 0",
-      },
-    ],
     filePDFData: null,
-    filePHPData:null
+    filePHPData: null,
   }),
+  components: {
+    WelcomeHome,
+  },
   methods: {
     getFileExtension(filename) {
       //metodo que obtiene la extension del archivo
       return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
     },
-
+    async getDocuments() {
+      this.pdfList = [];
+      const querySnapshot = await getDocs(collection(db, "documents"));
+      querySnapshot.forEach((doc) => {
+        this.pdfList.push(doc.data());
+      });
+    },
     async uploadTaskPromise(fileData) {
       return new Promise(function (resolve, reject) {
         const docRef = ref(storage, `documents/` + fileData.name);
@@ -277,9 +293,8 @@ export default {
           "state_changed",
           (snapshot) => {
             // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
-            console.log("Upload is " + progress + "% done");
+            //var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            //console.log("Upload is " + progress + "% done");
             switch (snapshot.state) {
               case "paused":
                 console.log("Upload is paused");
@@ -295,18 +310,18 @@ export default {
             switch (error.code) {
               case "storage/unauthorized":
                 // User doesn't have permission to access the object
-                reject();
+                reject(error);
                 break;
               case "storage/canceled":
                 // User canceled the upload
-                reject();
+                reject(error);
                 break;
 
               // ...
 
               case "storage/unknown":
                 // Unknown error occurred, inspect error.serverResponse
-                reject();
+                reject(error);
                 break;
             }
           },
@@ -314,7 +329,7 @@ export default {
             //en el complete
             // Upload completed successfully, now we can get the download URL
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              console.log("File available at", downloadURL);
+              //console.log("File available at", downloadURL);
               resolve(downloadURL);
             });
           }
@@ -331,8 +346,8 @@ export default {
       this.filePHPData = event[0];
       console.log(this.filePHPData);
     },
-
     async SaveNewDoc() {
+      this.loading = true;
       let newDoc = {
         title: this.title,
         description: this.description,
@@ -342,27 +357,39 @@ export default {
 
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
-        console.log(newDoc);
         //subir el primer archivo pdf.
         try {
-          // const urlWebPdf = await this.uploadFile(this.filePDFData);
-
-          //se suben los archivos
           newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
           newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
-          
-          // una vez que los 2 archivos subieron 
+          // una vez que los 2 archivos subieron
           //a firebase se crear el registro en la base de datos
-          console.log(newDoc);
-
+          const docRef = await addDoc(collection(db, "documents"), newDoc);
+          console.log("Document written with ID: ", docRef.id);
+          this.loading = false;
+          this.dialog = false;
+          this.snackbar = true;
+          this.snacktype = {
+            color: "success",
+            icon: "mdi-check-circle-outline",
+            msg: "Documento almacenado correctamente",
+          };
+          await this.getDocuments();
         } catch (error) {
           console.log(error);
+          this.loading = false;
+          this.dialog = false;
+          this.snackbar = true;
+          this.snacktype = {
+            color: "red accent-2",
+            icon: "mdi-alert-circle-outline",
+            msg: "No fue posible Almacenar documento.",
+          };
         }
       }
     },
     wacthpdf(item) {
-      this.pdfsrc = item.urlExample;
-      this.pdfsrc2 = item.urlExamplePDF;
+      this.pdfsrc = item.pdfFile;
+      this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
     },
     addFileDialog() {
@@ -372,8 +399,17 @@ export default {
       this.pdfFile = "";
       this.dialog = true;
     },
+    DownloadFromUrl(item) {
+      var link = document.createElement("a");
+      link.href = item.phpFile;
+      link.download = item.title + ".php";
+      link.target = "_blank";
+      document.body.appendChild(link);
+
+      link.click();
+      document.body.removeChild(link);
+    },
   },
-  components: {},
   computed: {
     keywords() {
       if (!this.search) return [];
@@ -392,10 +428,14 @@ export default {
       });
     },
   },
-  created() {
+
+  async created() {
+    //aca debemos leer firestore
+    await this.getDocuments();
+    console.log(this.pdfList);
     this.pdfsrc = "";
-    this.pdfList = data.datos;
-    this.pdfListAll = data.datos;
+    //this.pdfList = data.datos;
+    //this.pdfListAll = this.pdfList;
   },
 };
 </script>
