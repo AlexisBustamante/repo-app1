@@ -281,7 +281,9 @@ export default {
       this.pdfList = [];
       const querySnapshot = await getDocs(collection(db, "documents"));
       querySnapshot.forEach((doc) => {
-        this.pdfList.push(doc.data());
+          let newdoc = doc.data()
+          newdoc.id = doc.id
+        this.pdfList.push(newdoc);
       });
     },
     async uploadTaskPromise(fileData) {
@@ -391,6 +393,7 @@ export default {
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
+      console.log(item);
     },
     addFileDialog() {
       this.title = "";
