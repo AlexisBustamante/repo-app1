@@ -225,7 +225,7 @@
 
 <script>
 import WelcomeHome from "./components/WelcomeHome";
- import data from "/public/data.json";
+ //import data from "/public/data.json";
 import {
   storage,
   db,
@@ -434,11 +434,11 @@ export default {
 
   async created() {
     //aca debemos leer firestore
-    //await this.getDocuments();
+    await this.getDocuments();
     //console.log(this.pdfList);
     this.pdfsrc = "";
-    this.pdfList = data.datos;
-    this.pdfListAll = this.pdfList;
+    //this.pdfList = data.datos;
+    //this.pdfListAll = this.pdfList;
   },
 };
 </script>
