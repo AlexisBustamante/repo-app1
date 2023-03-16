@@ -7,6 +7,92 @@
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
 
+    <!-- LOGIN -->
+    <v-dialog
+      v-model="dialogLogin"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar color="#11334d"> </v-toolbar>
+        <v-divider></v-divider>
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-card-text class="mt-12">
+              <v-row align="center" justify="center">
+                <img
+                  style="height: 300px; margin-bottom: 20px"
+                  src="./assets/logo_app.png"
+                  alt=""
+                />
+              </v-row>
+              <h4 class="text-center"></h4>
+              <v-row align="center" justify="center">
+                <v-col cols="12" sm="8">
+                  <v-text-field
+                    label="Email"
+                    outlined
+                    dense
+                    color="blue"
+                    autocomplete="false"
+                    class="mt-16"
+                    v-model="email"
+                  />
+                  <v-text-field
+                    label="Password"
+                    outlined
+                    dense
+                    color="blue"
+                    autocomplete="false"
+                    type="password"
+                    v-model="password"
+                  />
+                  <v-row>
+                    <v-col cols="12" sm="7">
+                      <!-- <v-checkbox label="Remember Me" class="mt-n1" color="blue"> </v-checkbox> -->
+                    </v-col>
+                    <v-col cols="12" sm="5">
+                      <!-- <span class="caption blue--text">Forgot password</span> -->
+                    </v-col>
+                  </v-row>
+                  <v-btn color="blue" dark @click="signIn()" block tile
+                    >Log in</v-btn
+                  >
+                  <v-alert
+                    style="margin-top: 10px"
+                    dismissible
+                    v-model="dialogErr"
+                    type="error"
+                    outlined
+                  >
+                    El usuario o la contraseña no son correctas.
+                  </v-alert>
+                  <!-- <h5 class="text-center  grey--text mt-4 mb-3">Or Log in using</h5> -->
+                  <div></div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-col>
+          <v-col cols="12" md="6" class="primary rounded-bl-xl">
+            <div style="height=2300px;text-align: center; padding: 180px 0;">
+              <v-card-text class="white--text">
+                <v-row align="center" justify="center">
+                  <img
+                    style="height: 300px; margin-bottom: 10px"
+                    src="./assets/logo.png"
+                    alt=""
+                  />
+                </v-row>
+                <h1 class="text-center">Repositorio de Informes</h1>
+                <h5 class="text-center">Gracias por contribuir con nostros.</h5>
+              </v-card-text>
+            </div>
+          </v-col>
+        </v-row>
+      </v-card>
+    </v-dialog>
+
     <!-- FORMULARIO DE INGRESO QUE PUEDE SER UN COMPONENTE. -->
     <v-snackbar
       :timeout="timeout"
@@ -28,7 +114,11 @@
 
           <v-card-text>
             <v-container v-if="loading ? true : false">
-              <v-row class="fill-height" align-content="center" justify="center">
+              <v-row
+                class="fill-height"
+                align-content="center"
+                justify="center"
+              >
                 <v-col class="text-subtitle-1 text-center" cols="12">
                   Subiendo Archivos a la Nube ...
                 </v-col>
@@ -103,10 +193,12 @@
 
           <v-card-actions v-if="loading ? false : true">
             <v-spacer></v-spacer>
-            <v-btn color="red darken-1" text @click.prevent="dialog = false">
+            <v-btn color="red darken-1" text @click.prevent="cancelDialog()">
               Close
             </v-btn>
-            <v-btn color="blue darken-1" text @click.prevent="SaveNewDoc()"> Save </v-btn>
+            <v-btn color="blue darken-1" text @click.prevent="SaveNewDoc()">
+              Save
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -127,14 +219,58 @@
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app width="400">
-      <v-navigation-drawer v-model="drawer" absolute color="#11334d" mini-variant>
-        <!-- <v-avatar class="d-block text-center mx-auto mt-4" color="grey darken-1" size="36">
-    
-                </v-avatar> -->
-        <v-icon dark class="d-block text-center mx-auto mt-4">mdi-file-chart</v-icon>
+      <v-navigation-drawer
+        v-model="drawer"
+        absolute
+        color="#11334d"
+        mini-variant
+      >
+        <!-- <v-avatar
+          class="d-block text-center mx-auto mt-4"
+          color="grey darken-1"
+          size="36"
+        >
+        </v-avatar> -->
+        <v-container fluid>
+          <v-row justify="center">
+            <v-menu bottom min-width="200px" rounded offset-y>
+              <template v-slot:activator="{ on }">
+                <v-btn style="margin-top: 5px" icon x-large v-on="on">
+                  <v-avatar size="48">
+                    <v-icon color="white"> mdi-account-circle </v-icon>
+                  </v-avatar>
+                </v-btn>
+              </template>
+              <v-card>
+                <v-list-item-content class="justify-center">
+                  <div class="mx-auto text-center">
+                    <v-avatar size="48">
+                      <v-icon color="black"> mdi-account-circle </v-icon>
+                    </v-avatar>
+                    <h3>{{ user.fullName }}</h3>
+                    <p class="text-caption mt-1">
+                      {{ user.email }}
+                    </p>
+                    <v-divider class="my-3"></v-divider>
+                    <v-btn depressed rounded text @click="signOut()">
+                      Cerrar Sesión
+                    </v-btn>
+                  </div>
+                </v-list-item-content>
+              </v-card>
+            </v-menu>
+          </v-row>
+        </v-container>
+
+        <!-- <v-icon dark class="d-block text-center mx-auto mt-4"
+          >mdi-file-chart</v-icon
+        > -->
 
         <v-divider class="mx-3 my-5"></v-divider>
-        <v-icon @click="addFileDialog()" dark class="d-block text-center mx-auto mt-4"
+        <v-icon
+          @click="addFileDialog()"
+          dark
+          class="d-block text-center mx-auto mt-4"
           >mdi-file-plus</v-icon
         >
         <!-- <v-avatar v-for="n in 6" :key="n" class="d-block text-center mx-auto mb-9" color="grey lighten-1"
@@ -225,7 +361,12 @@
 
 <script>
 import WelcomeHome from "./components/WelcomeHome";
- //import data from "/public/data.json";
+//import AvatarLogin from "./components/AvatarLogin.vue";
+import { config } from "../config/config";
+//import data from "/public/data.json";
+const usradm = config.userAdmin;
+const usrpass = config.userPass;
+
 import {
   storage,
   db,
@@ -239,6 +380,10 @@ import {
 
 export default {
   data: () => ({
+    user: {
+      fullName: "Administrador",
+      email: "admin@repoapp.com",
+    },
     selectedItem: 0,
     progress: null,
     loading: false,
@@ -268,11 +413,27 @@ export default {
     pdfListAll: [],
     filePDFData: null,
     filePHPData: null,
+    dialogErr: false,
+    dialogLogin: false,
+    email: "",
+    password: "",
   }),
   components: {
     WelcomeHome,
   },
   methods: {
+    signOut() {
+      this.dialogLogin = true;
+    },
+    signIn() {
+      // this.email=""
+      // this.password=""
+      if (usradm == this.email && usrpass == this.password) {
+        this.dialogLogin = false; //se logea "entrecomillas"
+      } else {
+        this.dialogErr = true;
+      }
+    },
     getFileExtension(filename) {
       //metodo que obtiene la extension del archivo
       return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
@@ -281,8 +442,8 @@ export default {
       this.pdfList = [];
       const querySnapshot = await getDocs(collection(db, "documents"));
       querySnapshot.forEach((doc) => {
-          let newdoc = doc.data()
-          newdoc.id = doc.id
+        let newdoc = doc.data();
+        newdoc.id = doc.id;
         this.pdfList.push(newdoc);
       });
     },
@@ -338,6 +499,13 @@ export default {
         );
       });
     },
+    cancelDialog() {
+      this.dialog = false;
+      this.title = "";
+      this.description = "";
+      this.filePHPData = null;
+      this.filePDFData = null;
+    },
     assignDataPDF(event) {
       this.filePDFData = null;
       this.filePDFData = event[0];
@@ -349,7 +517,6 @@ export default {
       console.log(this.filePHPData);
     },
     async SaveNewDoc() {
-      this.loading = true;
       let newDoc = {
         title: this.title,
         description: this.description,
@@ -360,6 +527,7 @@ export default {
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
         //subir el primer archivo pdf.
+        this.loading = true;
         try {
           newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
           newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
