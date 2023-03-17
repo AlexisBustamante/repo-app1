@@ -73,7 +73,7 @@
         {
             "id": 11,
             "title": "Boletin Secundaria Final Olivos",
-            "description": "Acta volante que se genera desde Exámenes con rol administrador para obtener los alumnos a dar examen.  ",
+            "description": "Boletin del colegio Olivos para solo calificaciones finales ",
             "phpFile": "/script_download/BoletinSecundariaFinalOlivos.php",
             "pdfFile": "/examples/BoletinSecundariaFinalOlivos.pdf"
         }
