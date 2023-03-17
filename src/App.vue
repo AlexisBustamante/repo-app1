@@ -363,7 +363,7 @@
 import WelcomeHome from "./components/WelcomeHome";
 //import AvatarLogin from "./components/AvatarLogin.vue";
 import { config } from "../config/config";
-//import data from "/public/data.json";
+import data from "/public/data.json";
 const usradm = config.userAdmin;
 const usrpass = config.userPass;
 
@@ -602,11 +602,11 @@ export default {
 
   async created() {
     //aca debemos leer firestore
-    await this.getDocuments();
+    //await this.getDocuments();
     //console.log(this.pdfList);
     this.pdfsrc = "";
-    //this.pdfList = data.datos;
-    //this.pdfListAll = this.pdfList;
+    this.pdfList = data.datos;
+    this.pdfListAll = this.pdfList;
   },
 };
 </script>
