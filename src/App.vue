@@ -435,17 +435,24 @@
       </v-navigation-drawer>
 
       <v-sheet class="pl-16 pa-3" color="#11334d" height="60" width="100%">
-        <v-text-field
-          dark
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search for title"
-          dense
-          flat
-          hide-details
-          rounded
-          solo-inverted
-        ></v-text-field>
+        <v-row>
+          <v-col cols="1">
+            <v-icon @click="getDocuments()" color="white">mdi-reload</v-icon>
+          </v-col>
+          <v-col>
+            <v-text-field
+              dark
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search for title"
+              dense
+              flat
+              hide-details
+              rounded
+              solo-inverted
+            ></v-text-field>
+          </v-col>
+        </v-row>
       </v-sheet>
 
       <v-list-item-group v-model="selectedItem" color="primary">
