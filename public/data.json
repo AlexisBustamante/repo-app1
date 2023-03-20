@@ -23,7 +23,7 @@
         },
         {
             "id": 4,
-            "title": "Boletin Secundaria  Trimestral ",
+            "title": "Boletin Secundaria Trimestral ",
             "description": "Boletin que obtiene las calificaciones , inasistencias por todo periodo configurado. ",
             "phpFile": "/script_download/BoletinSecundariaTrimestre.php",
             "pdfFile": "/examples/BoletinSecundariaTrimestre.pdf"
@@ -44,7 +44,7 @@
         },
         {
             "id": 7,
-            "title": "Boletin  Oficial Secundaria Guadalupe ",
+            "title": "Boletin Oficial Secundaria Guadalupe ",
             "description": "Boletin que obtiene las calificaciones de acuerdo al ciclo, es d eun colegio especifico ",
             "phpFile": "/script_download/BoletinOficialSecundariaGuadalupe.php",
             "pdfFile": "/examples/BoletinOficialSecundariaGuadalupe.pdf"
