@@ -6,7 +6,149 @@
       <v-icon>mdi-circle</v-icon>
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
+    <!-- DIALOG EDITAR -->
+    <v-row justify="center">
+      <v-dialog v-model="dialogEdit" persistent max-width="600px">
+        <v-card>
+          <v-toolbar v-show="loading ? false : true" color="#11334d">
+            <span class="text-h5" style="color: white">Editar Documento</span>
+          </v-toolbar>
 
+          <v-card-text>
+            <v-container v-if="loading ? true : false">
+              <v-row
+                class="fill-height"
+                align-content="center"
+                justify="center"
+              >
+                <v-col class="text-subtitle-1 text-center" cols="12">
+                  Subiendo Archivos a la Nube ...
+                </v-col>
+                <v-col class="text-subtitle-1 text-center" cols="12">
+                  <v-icon x-large>mdi-cloud-arrow-up-outline</v-icon>
+                </v-col>
+
+                <v-col cols="6">
+                  <v-progress-linear
+                    color="primary"
+                    indeterminate
+                    rounded
+                    height="6"
+                  ></v-progress-linear>
+                </v-col>
+              </v-row>
+            </v-container>
+            <v-container v-if="loading ? false : true">
+              <v-form ref="formEditDocument">
+                <v-text-field
+                  outlined
+                  v-model="title"
+                  label="Title"
+                  :rules="rules"
+                  required
+                ></v-text-field>
+                <v-textarea
+                  outlined
+                  v-model="description"
+                  label="Description"
+                  required
+                ></v-textarea>
+
+                <v-row align="center"> </v-row>
+                <v-row>
+                  <v-col cols="10">
+                    <v-file-input
+                      :disabled="!enabledPDF"
+                      prepend-icon="mdi-file-pdf-box"
+                      outlined
+                      chips
+                      multiple
+                      counter
+                      dense
+                      show-size
+                      accept=".pdf"
+                      label="attach pdf file"
+                      @change="assignDataPDF"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col>
+                    <v-checkbox
+                      v-model="enabledPDF"
+                      hide-details
+                      class="shrink mr-2 mt-0"
+                    ></v-checkbox>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="10">
+                    <v-file-input
+                      :disabled="!enabledPHP"
+                      prepend-icon="mdi-language-php"
+                      outlined
+                      dense
+                      chips
+                      show-size
+                      multiple
+                      counter
+                      accept=".php"
+                      label="attach PHP file"
+                      @change="assignDataPHP"
+                    ></v-file-input>
+                  </v-col>
+                  <v-col>
+                    <v-checkbox
+                      v-model="enabledPHP"
+                      hide-details
+                      class="shrink mr-2 mt-0"
+                    ></v-checkbox>
+                  </v-col>
+                </v-row>
+              </v-form>
+              <small>*indicates required field</small>
+            </v-container>
+          </v-card-text>
+
+          <v-card-actions v-if="loading ? false : true">
+            <v-spacer></v-spacer>
+            <v-btn
+              color="red darken-1"
+              text
+              @click.prevent="cancelDialogEdit()"
+            >
+              Close
+            </v-btn>
+            <v-btn color="blue darken-1" text @click.prevent="editDocument()">
+              Edit
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
+    <!-- DIALOG ELIMINA DOC-->
+    <v-dialog
+      v-model="dialogDel"
+      transition="dialog-top-transition"
+      max-width="600"
+    >
+      <v-card>
+        <!-- <v-toolbar color="primary" dark> Eliminar Registro</v-toolbar> -->
+        <v-card-title>
+          ¿Desea eliminar el registro{{ itemSelected.title }}?</v-card-title
+        >
+        <v-card-text>
+          <p class="text--secondary">
+            Esta acción es irreversible, por favor asegúrese de que el registro
+            sea el correcto a eliminar.
+          </p>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn color="primary" text @click="dialogDel = false">Close</v-btn>
+          <v-btn color="red" text @click="DeleteDoc">Eliminar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <!-- LOGIN -->
     <v-dialog
       v-model="dialogLogin"
@@ -273,6 +415,21 @@
           class="d-block text-center mx-auto mt-4"
           >mdi-file-plus</v-icon
         >
+        <v-icon
+          @click="delFileDialog()"
+          dark
+          :disabled="itemSelected.title != '' ? false : true"
+          class="d-block text-center mx-auto mt-4"
+          >mdi-file-document-remove</v-icon
+        >
+        <v-icon
+          @click="editFileDialog()"
+          dark
+          :disabled="itemSelected.title != '' ? false : true"
+          class="d-block text-center mx-auto mt-4"
+          >mdi-file-document-edit</v-icon
+        >
+
         <!-- <v-avatar v-for="n in 6" :key="n" class="d-block text-center mx-auto mb-9" color="grey lighten-1"
               size="28"></v-avatar> -->
       </v-navigation-drawer>
@@ -363,7 +520,7 @@
 import WelcomeHome from "./components/WelcomeHome";
 //import AvatarLogin from "./components/AvatarLogin.vue";
 import { config } from "../config/config";
-import data from "/public/data.json";
+//import data from "/public/data.json";
 const usradm = config.userAdmin;
 const usrpass = config.userPass;
 
@@ -374,16 +531,20 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   collection,
+  doc,
   addDoc,
   getDocs,
+  deleteDoc,
+  updateDoc,
 } from "./firebase.js";
 
 export default {
   data: () => ({
     user: {
       fullName: "Administrador",
-      email: "admin@repoapp.com",
+      email: usradm,
     },
+    dialogDel: false,
     selectedItem: 0,
     progress: null,
     loading: false,
@@ -393,7 +554,7 @@ export default {
     title: "",
     description: "",
     vertical: true,
-    itemSelected: {},
+    itemSelected: { title: "" },
     pdfsrc: null,
     pdfsrc2: null,
     timeout: 5000, //3seg
@@ -414,9 +575,13 @@ export default {
     filePDFData: null,
     filePHPData: null,
     dialogErr: false,
-    dialogLogin: false,
+    dialogLogin: true,
+    dialogEdit: false,
     email: "",
     password: "",
+    enabled: false,
+    enabledPDF: false,
+    enabledPHP: false,
   }),
   components: {
     WelcomeHome,
@@ -425,9 +590,82 @@ export default {
     signOut() {
       this.dialogLogin = true;
     },
+    cancelDialogEdit() {
+      this.dialogEdit = false;
+    },
+    async editDocument() {
+      this.loading = true;
+
+      if (this.$refs.formEditDocument.validate()) {
+        try {
+          let itemEdit = {
+            title: this.title,
+            description: this.description,
+          };
+
+          const docRef = doc(db, "documents", this.itemSelected.id);
+
+          if (this.enabledPDF && this.filePDFData) {
+            itemEdit.pdfFile = await this.uploadTaskPromise(this.filePDFData);
+          }
+
+          if (this.enabledPHP && this.filePHPData) {
+            itemEdit.phpFile = await this.uploadTaskPromise(this.filePHPData);
+          }
+
+          await updateDoc(docRef, itemEdit);
+          await this.getDocuments();
+          this.itemSelected = {};
+          this.loading = false;
+          this.snackbar = true;
+          this.dialogEdit = false;
+          this.snacktype = {
+            color: "success",
+            icon: "mdi-check-circle-outline",
+            msg: "Documento editado correctamente",
+          };
+        } catch (error) {
+          console.log(error);
+          this.loading = false;
+        }
+      }
+    },
+    editFileDialog() {
+      this.enabledPDF = false;
+      this.enabledPHP = false;
+      this.filePDFData = null;
+      this.filePHPData = null;
+
+      this.title = this.itemSelected.title;
+      this.description = this.itemSelected.description;
+
+      //this.filePDFData = this.itemSelected.pdfFile;
+      //this.filePHPData = this.itemSelected.phpFile;
+
+      this.dialogEdit = true;
+    },
+    delFileDialog() {
+      this.dialogDel = true;
+    },
+    async DeleteDoc() {
+      console.log(this.itemSelected);
+
+      try {
+        await deleteDoc(doc(db, "documents", this.itemSelected.id));
+        console.log("documento eliminado ", this.itemSelected);
+        this.itemSelected = {};
+        this.dialogDel = false;
+        await this.getDocuments(); //recargo lista.
+      } catch (error) {
+        console.log(error);
+        this.dialogDel = false;
+      }
+    },
     signIn() {
       // this.email=""
       // this.password=""
+      // TODO : esto es temporal, se valida con una variable de entorno.
+      //
       if (usradm == this.email && usrpass == this.password) {
         this.dialogLogin = false; //se logea "entrecomillas"
       } else {
@@ -509,7 +747,7 @@ export default {
     assignDataPDF(event) {
       this.filePDFData = null;
       this.filePDFData = event[0];
-      console.log(this.filePDFData);
+      //console.log(this.filePDFData);
     },
     assignDataPHP(event) {
       this.filePHPData = null;
@@ -602,10 +840,10 @@ export default {
 
   async created() {
     //aca debemos leer firestore
-    //await this.getDocuments();
+    await this.getDocuments();
     //console.log(this.pdfList);
     this.pdfsrc = "";
-    this.pdfList = data.datos;
+    //this.pdfList = data.datos;
     this.pdfListAll = this.pdfList;
   },
 };
