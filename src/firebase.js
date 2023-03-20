@@ -6,6 +6,7 @@ import { config } from '../config/config.js'
 import {
   collection, getDocs, addDoc, deleteDoc, doc, updateDoc
 } from 'firebase/firestore/lite';
+import "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -16,7 +17,7 @@ const firebaseConfig = {
   apiKey: config.apiKey,
   authDomain: config.authDomain,
   projectId: config.projectId,
-  storageBucket: config.storageBucket,
+  storageBucket: 'prueba-6985f.appspot.com',
   messagingSenderId: config.messagingSenderId,
   appId: config.appId,
   measurementId: config.measurementId
