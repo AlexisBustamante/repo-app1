@@ -282,13 +282,36 @@
               <v-form ref="formNewDocument">
                 <v-text-field
                   outlined
+                  dense
                   v-model="title"
-                  label="Title"
+                  label="Titulo"
                   :rules="rules"
                   required
                 ></v-text-field>
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      outlined
+                      dense
+                      v-model="author"
+                      label="Autor"
+                      :rules="rules"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col>
+                    <v-select
+                      :items="itemsCategoria"
+                      label="Categoría"
+                      dense
+                      outlined
+                      @change="(valor) => changeState(valor)"
+                    ></v-select>
+                  </v-col>
+                </v-row>
                 <v-textarea
                   outlined
+                  dense
                   v-model="description"
                   label="Description"
                   required
@@ -306,12 +329,11 @@
                       accept=".pdf"
                       label="attach pdf file"
                       @change="assignDataPDF"
-                      :rules="[(v) => !!v || 'File is mandatory']"
                     ></v-file-input>
                   </v-col>
                 </v-row>
 
-                <v-row>
+                <v-row v-show="enabledPHP">
                   <v-col cols="12">
                     <v-file-input
                       prepend-icon="mdi-language-php"
@@ -324,7 +346,6 @@
                       accept=".php"
                       label="attach PHP file"
                       @change="assignDataPHP"
-                      :rules="[(v) => !!v || 'File is mandatory']"
                     ></v-file-input>
                   </v-col>
                 </v-row>
@@ -494,22 +515,62 @@
           </v-list> -->
     </v-navigation-drawer>
 
-    <!--LA COLUMNA DERECHA <v-navigation-drawer app clipped right>
-          <v-list lines="three">
-            <v-list-item v-for="n in 5" :key="n" link>
-              <v-list-item-content>
-                <v-list-item-title>botones de descarga {{ n }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-navigation-drawer> -->
+    <!-- LA COLUMNA DERECHA -->
+    <v-navigation-drawer
+      v-show="itemSelected.title != '' ? true : false"
+      app
+      clipped
+      right
+    >
+      <v-card>
+        <v-card-title class="text-subtitle-2">Titulo:</v-card-title>
+        <v-card-text>{{ itemSelected.title }}</v-card-text>
+        <v-card-title class="text-subtitle-2">Descripción:</v-card-title>
+        <v-card-text>{{ itemSelected.description }}</v-card-text>
+        <v-card-title class="text-subtitle-2">Autor:</v-card-title>
+        <v-chip class="ma-2" color="indigo" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-account-circle</v-icon>
+          </v-avatar>
+          Alexis Bustamante
+        </v-chip>
+        <v-card-title class="text-subtitle-2">Categoría:</v-card-title>
+        <v-chip class="ma-2" color="teal" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-file</v-icon>
+          </v-avatar>
+          Boletines
+        </v-chip>
+        <v-card-title class="text-subtitle-2">Fecha creación:</v-card-title>
+        <v-chip class="ma-2" color="cyan" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-calendar-range</v-icon>
+          </v-avatar>
+          01/01/2023
+        </v-chip>
+        <v-card-title class="text-subtitle-2"
+          >Tickets Relacionados:</v-card-title
+        >
+        <v-chip class="ma-2" color="green" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-ticket-confirmation</v-icon>
+          </v-avatar>
+          376958
+        </v-chip>
+      </v-card>
+    </v-navigation-drawer>
 
     <v-main>
       <!--  -->
       <v-container>
         <v-row v-if="pdfsrc">
           <!-- <img :src="pdfsrc" alt=""> -->
-          <iframe :src="pdfsrc2" height="1200px" width="100%"></iframe>
+          <iframe
+            style="margin-top: 50px"
+            :src="pdfsrc2"
+            height="1200px"
+            width="100%"
+          ></iframe>
         </v-row>
         <v-row v-else>
           <welcome-home></welcome-home>
@@ -543,6 +604,7 @@ import {
   getDocs,
   deleteDoc,
   updateDoc,
+  Timestamp,
 } from "./firebase.js";
 
 export default {
@@ -555,11 +617,14 @@ export default {
     selectedItem: 0,
     progress: null,
     loading: false,
-    dialog: false,
+    dialog: true,
     snackbar: false,
     search: "",
     title: "",
     description: "",
+    author: "",
+    categoria: "",
+    itemsCategoria: ["Boletines", "Manuales"],
     vertical: true,
     itemSelected: { title: "" },
     pdfsrc: null,
@@ -582,7 +647,7 @@ export default {
     filePDFData: null,
     filePHPData: null,
     dialogErr: false,
-    dialogLogin: true,
+    dialogLogin: false,
     dialogEdit: false,
     email: "",
     password: "",
@@ -594,6 +659,12 @@ export default {
     WelcomeHome,
   },
   methods: {
+    changeState(valor) {
+      this.categoria = "";
+      this.categoria = valor;
+      this.enabledPHP = valor == "Boletines" ? true : false;
+      //console.log(this.categoria);
+    },
     signOut() {
       this.dialogLogin = true;
     },
@@ -601,9 +672,8 @@ export default {
       this.dialogEdit = false;
     },
     async editDocument() {
-      this.loading = true;
-
       if (this.$refs.formEditDocument.validate()) {
+        this.loading = true;
         try {
           let itemEdit = {
             title: this.title,
@@ -659,9 +729,10 @@ export default {
 
       try {
         await deleteDoc(doc(db, "documents", this.itemSelected.id));
-        console.log("documento eliminado ", this.itemSelected);
+        //console.log("documento eliminado ", this.itemSelected);
         this.itemSelected = {};
         this.dialogDel = false;
+        this.pdfsrc = "";
         await this.getDocuments(); //recargo lista.
       } catch (error) {
         console.log(error);
@@ -759,23 +830,32 @@ export default {
     assignDataPHP(event) {
       this.filePHPData = null;
       this.filePHPData = event[0];
-      console.log(this.filePHPData);
+      //console.log(this.filePHPData);
     },
     async SaveNewDoc() {
       let newDoc = {
         title: this.title,
+        author: this.author,
         description: this.description,
+        createdAd: Timestamp.fromDate(new Date()),
+        categoria: this.categoria,
         phpFile: "",
         pdfFile: "",
       };
-
+      console.log(newDoc);
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
         //subir el primer archivo pdf.
         this.loading = true;
         try {
-          newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
-          newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
+          if (this.filePDFData) {
+            newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
+          }
+
+          if (this.filePHPData) {
+            newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
+          }
+
           // una vez que los 2 archivos subieron
           //a firebase se crear el registro en la base de datos
           const docRef = await addDoc(collection(db, "documents"), newDoc);
