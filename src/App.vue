@@ -10,7 +10,8 @@
       v-model="dialogDel"
       transition="dialog-top-transition"
       max-width="600"
-    ></v-dialog>
+    >
+    </v-dialog>
 
     <!-- DIALOG EDITAR -->
     <v-row justify="center">
