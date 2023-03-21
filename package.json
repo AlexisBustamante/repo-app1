@@ -14,6 +14,7 @@
     "vue-iframes": "^0.0.20",
     "vue-pdf": "^4.3.0",
     "vue-pdfjs": "^1.1.1",
+    "vue2-editor": "^2.10.3",
     "vuetify": "^2.6.0"
   },
   "devDependencies": {

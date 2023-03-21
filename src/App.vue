@@ -6,6 +6,12 @@
       <v-icon>mdi-circle</v-icon>
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
+    <v-dialog
+      v-model="dialogDel"
+      transition="dialog-top-transition"
+      max-width="600"
+    ></v-dialog>
+
     <!-- DIALOG EDITAR -->
     <v-row justify="center">
       <v-dialog v-model="dialogEdit" persistent max-width="600px">
@@ -248,7 +254,7 @@
       </p>
     </v-snackbar>
     <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-dialog v-model="dialog" persistent max-width="1200px">
         <v-card>
           <v-toolbar v-show="loading ? false : true" color="#11334d">
             <span class="text-h5" style="color: white">Nuevo Documento</span>
@@ -280,59 +286,94 @@
             </v-container>
             <v-container v-if="loading ? false : true">
               <v-form ref="formNewDocument">
-                <v-text-field
-                  outlined
-                  dense
-                  v-model="title"
-                  label="Titulo"
-                  :rules="rules"
-                  required
-                ></v-text-field>
                 <v-row>
                   <v-col>
                     <v-text-field
                       outlined
                       dense
-                      v-model="author"
-                      label="Autor"
+                      v-model="title"
+                      label="Titulo"
                       :rules="rules"
                       required
                     ></v-text-field>
-                  </v-col>
-                  <v-col>
-                    <v-select
-                      :items="itemsCategoria"
-                      label="Categoría"
-                      dense
+                    <v-row>
+                      <v-col>
+                        <v-select
+                          :items="itemsAuthors"
+                          label="Autor"
+                          dense
+                          outlined
+                          @change="(valor) => changeStateA(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          :items="itemsCategoria"
+                          label="Categoría"
+                          dense
+                          outlined
+                          @change="(valor) => changeState(valor)"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                    <v-textarea
                       outlined
-                      @change="(valor) => changeState(valor)"
-                    ></v-select>
-                  </v-col>
-                </v-row>
-                <v-textarea
-                  outlined
-                  dense
-                  v-model="description"
-                  label="Description"
-                  required
-                ></v-textarea>
-                <v-row>
-                  <v-col cols="12">
-                    <v-file-input
-                      prepend-icon="mdi-file-pdf-box"
-                      outlined
-                      chips
-                      multiple
-                      counter
                       dense
-                      show-size
-                      accept=".pdf"
-                      label="attach pdf file"
-                      @change="assignDataPDF"
-                    ></v-file-input>
+                      v-model="description"
+                      label="Description"
+                      required
+                    ></v-textarea>
+                    <v-row>
+                      <v-col cols="12">
+                        <v-file-input
+                          prepend-icon="mdi-file-pdf-box"
+                          outlined
+                          chips
+                          multiple
+                          counter
+                          dense
+                          show-size
+                          accept=".pdf"
+                          label="attach pdf file"
+                          @change="assignDataPDF"
+                        ></v-file-input>
+                      </v-col>
+                    </v-row>
+                    <v-card-actions v-if="loading ? false : true">
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click.prevent="cancelDialog()"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click.prevent="SaveNewDoc()"
+                      >
+                        Save
+                      </v-btn>
+                    </v-card-actions>
+                  </v-col>
+                  <v-col cols="6" v-show="enabledPHP">
+                    <v-container>
+                      <v-card-title>Script Php</v-card-title>
+                      <v-card-subtitle
+                        >Copia y pega tu código php para subir a la
+                        plataforma</v-card-subtitle
+                      >
+                      <vue-editor
+                        editorToolbar="{}"
+                        v-model="contentEditor"
+                      ></vue-editor>
+                      <div>{{ contentEditor }}</div>
+                    </v-container>
                   </v-col>
                 </v-row>
 
+                <!-- 
                 <v-row v-show="enabledPHP">
                   <v-col cols="12">
                     <v-file-input
@@ -348,21 +389,11 @@
                       @change="assignDataPHP"
                     ></v-file-input>
                   </v-col>
-                </v-row>
+                </v-row> -->
               </v-form>
               <small>*indicates required field</small>
             </v-container>
           </v-card-text>
-
-          <v-card-actions v-if="loading ? false : true">
-            <v-spacer></v-spacer>
-            <v-btn color="red darken-1" text @click.prevent="cancelDialog()">
-              Close
-            </v-btn>
-            <v-btn color="blue darken-1" text @click.prevent="SaveNewDoc()">
-              Save
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -607,6 +638,8 @@ import {
   Timestamp,
 } from "./firebase.js";
 
+import { VueEditor } from "vue2-editor/dist/vue2-editor.core.js";
+
 export default {
   data: () => ({
     user: {
@@ -654,11 +687,25 @@ export default {
     enabled: false,
     enabledPDF: false,
     enabledPHP: false,
+    itemsAuthors: [
+      "Alexis Bustamante",
+      "Pablo Guiñazú",
+      "Jesús Osorio",
+      "Pablo Ormero",
+    ],
+    contentEditor: "",
+    dialogShowphp: false,
   }),
   components: {
     WelcomeHome,
+    VueEditor,
   },
   methods: {
+    changeStateA(valor) {
+      this.author = "";
+      this.author = valor;
+      //console.log(this.categoria);
+    },
     changeState(valor) {
       this.categoria = "";
       this.categoria = valor;
@@ -839,7 +886,7 @@ export default {
         description: this.description,
         createdAd: Timestamp.fromDate(new Date()),
         categoria: this.categoria,
-        phpFile: "",
+        phpFile: this.contentEditor,
         pdfFile: "",
       };
       console.log(newDoc);
@@ -851,11 +898,6 @@ export default {
           if (this.filePDFData) {
             newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
           }
-
-          if (this.filePHPData) {
-            newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
-          }
-
           // una vez que los 2 archivos subieron
           //a firebase se crear el registro en la base de datos
           const docRef = await addDoc(collection(db, "documents"), newDoc);
@@ -935,3 +977,12 @@ export default {
   },
 };
 </script>
+
+<style lang="css">
+@import "~vue2-editor/dist/vue2-editor.css";
+
+/* Import the Quill styles you want */
+@import "~quill/dist/quill.core.css";
+@import "~quill/dist/quill.bubble.css";
+@import "~quill/dist/quill.snow.css";
+</style>
