@@ -6,6 +6,8 @@
       <v-icon>mdi-circle</v-icon>
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
+
+    <!-- DIALOGPARA VER -->
     <v-dialog
       v-model="dialogShowphp"
       transition="dialog-top-transition"
@@ -25,7 +27,7 @@
 
     <!-- DIALOG EDITAR -->
     <v-row justify="center">
-      <v-dialog v-model="dialogEdit" persistent max-width="600px">
+      <v-dialog v-model="dialogEdit" persistent max-width="1200px">
         <v-card>
           <v-toolbar v-show="loading ? false : true" color="#11334d">
             <span class="text-h5" style="color: white">Editar Documento</span>
@@ -57,88 +59,114 @@
             </v-container>
             <v-container v-if="loading ? false : true">
               <v-form ref="formEditDocument">
-                <v-text-field
-                  outlined
-                  v-model="title"
-                  label="Title"
-                  :rules="rules"
-                  required
-                ></v-text-field>
-                <v-textarea
-                  outlined
-                  v-model="description"
-                  label="Description"
-                  required
-                ></v-textarea>
-
-                <v-row align="center"> </v-row>
                 <v-row>
-                  <v-col cols="10">
-                    <v-file-input
-                      :disabled="!enabledPDF"
-                      prepend-icon="mdi-file-pdf-box"
-                      outlined
-                      chips
-                      multiple
-                      counter
-                      dense
-                      show-size
-                      accept=".pdf"
-                      label="attach pdf file"
-                      @change="assignDataPDF"
-                    ></v-file-input>
-                  </v-col>
                   <v-col>
-                    <v-checkbox
-                      v-model="enabledPDF"
-                      hide-details
-                      class="shrink mr-2 mt-0"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="10">
-                    <v-file-input
-                      :disabled="!enabledPHP"
-                      prepend-icon="mdi-language-php"
+                    <v-text-field
                       outlined
                       dense
-                      chips
-                      show-size
-                      multiple
-                      counter
-                      accept=".php"
-                      label="attach PHP file"
-                      @change="assignDataPHP"
-                    ></v-file-input>
+                      v-model="title"
+                      label="Titulo"
+                      :rules="rules"
+                      required
+                    ></v-text-field>
+                    <v-row>
+                      <v-col>
+                        <v-select
+                          :items="itemsAuthors"
+                          label="Autor"
+                          v-model="selectA"
+                          dense
+                          outlined
+                          @change="(valor) => changeStateA(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          :items="itemsCategoria"
+                          v-model="selectC"
+                          label="Categoría"
+                          dense
+                          outlined
+                          @change="(valor) => changeState(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-text-field
+                          outlined
+                          dense
+                          v-model="ticket"
+                          label="Ticket Relacionado"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-textarea
+                      outlined
+                      dense
+                      v-model="description"
+                      label="Description"
+                      required
+                    ></v-textarea>
+                    <v-row>
+                      <v-col cols="8">
+                        <v-file-input
+                          prepend-icon="mdi-file-pdf-box"
+                          outlined
+                          :disabled="!enabledPDF"
+                          chips
+                          multiple
+                          counter
+                          dense
+                          show-size
+                          accept=".pdf"
+                          label="attach pdf file"
+                          @change="assignDataPDF"
+                        ></v-file-input>
+                      </v-col>
+                      <v-col>
+                        <v-checkbox
+                          v-model="enabledPDF"
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+
+                    <v-card-actions v-if="loading ? false : true">
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click.prevent="cancelDialogEdit()"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click.prevent="editDocument()"
+                      >
+                        Edit
+                      </v-btn>
+                    </v-card-actions>
                   </v-col>
-                  <v-col>
-                    <v-checkbox
-                      v-model="enabledPHP"
-                      hide-details
-                      class="shrink mr-2 mt-0"
-                    ></v-checkbox>
+                  <v-col cols="6" v-show="enabledPHP">
+                    <v-container>
+                      <v-card-title>Script PHP</v-card-title>
+                      <v-card-subtitle
+                        >Modifica o copia y pega tu código php para subir a la
+                        plataforma</v-card-subtitle
+                      >
+                      <vue-editor
+                        :editorToolbar="customToolbar"
+                        v-model="contentEditor"
+                      ></vue-editor>
+                    </v-container>
                   </v-col>
                 </v-row>
               </v-form>
               <small>*indicates required field</small>
             </v-container>
           </v-card-text>
-
-          <v-card-actions v-if="loading ? false : true">
-            <v-spacer></v-spacer>
-            <v-btn
-              color="red darken-1"
-              text
-              @click.prevent="cancelDialogEdit()"
-            >
-              Close
-            </v-btn>
-            <v-btn color="blue darken-1" text @click.prevent="editDocument()">
-              Edit
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -252,7 +280,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- FORMULARIO DE INGRESO QUE PUEDE SER UN COMPONENTE. -->
+    <!-- SNACKVAR PARA MENSAJES -->
     <v-snackbar
       :timeout="timeout"
       v-model="snackbar"
@@ -264,6 +292,8 @@
         >{{ snacktype.msg }}.
       </p>
     </v-snackbar>
+
+    <!-- // todo: DIALOG NUEVO -->
     <v-row justify="center">
       <v-dialog v-model="dialog" persistent max-width="1200px">
         <v-card>
@@ -430,7 +460,7 @@
         <!-- <v-text-field dense flat hide-details rounded solo-inverted></v-text-field> -->
       </v-responsive>
     </v-app-bar>
-
+    <!-- BARRA LATERAL 1 -->
     <v-navigation-drawer v-model="drawer" app width="400">
       <v-navigation-drawer
         v-model="drawer"
@@ -540,17 +570,6 @@
             <v-list-item-subtitle>
               {{ item.description }}
             </v-list-item-subtitle>
-            <v-list-item-subtitle class="pa-1">
-              <v-icon color="primary" x-large @click="DownloadFromUrl(item)"
-                >mdi-language-php</v-icon
-              >
-              <!-- 
-                        <a style="text-decoration: none;" :href=item.urlExamplePDF :download="item.filePDF">
-                            <v-btn rounded color="error" dark>
-                                <v-icon>mdi-file-pdf-box</v-icon>
-                            </v-btn>
-                        </a> -->
-            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
@@ -573,32 +592,53 @@
       right
     >
       <v-card>
-        <v-card-title class="text-subtitle-2">Titulo:</v-card-title>
-        <v-card-text>{{ itemSelected.title }}</v-card-text>
-        <v-card-title class="text-subtitle-2">Descripción:</v-card-title>
+        <v-card-title class="text-subtitle-2 pb-0">Titulo:</v-card-title>
+        <v-card-text class="pb-0">{{ itemSelected.title }}</v-card-text>
+        <v-card-title class="text-subtitle-2 pb-0">Descripción:</v-card-title>
         <v-card-text>{{ itemSelected.description }}</v-card-text>
-        <v-card-title class="text-subtitle-2">Autor:</v-card-title>
+        <v-card-title
+          v-if="itemSelected.category == 'Boletines' ? true : false"
+          class="text-subtitle-2 pb-0"
+          >Script PHP:</v-card-title
+        >
+        <v-chip
+          v-if="itemSelected.category == 'Boletines' ? true : false"
+          class="ma-2"
+          color="primary"
+          text-color="white"
+          @click="DownloadFromUrl(itemSelected)"
+        >
+          <v-avatar left>
+            <v-icon>mdi-language-php</v-icon>
+          </v-avatar>
+          Ver Script
+        </v-chip>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0">Autor:</v-card-title>
         <v-chip class="ma-2" color="indigo" text-color="white">
           <v-avatar left>
             <v-icon>mdi-account-circle</v-icon>
           </v-avatar>
           {{ itemSelected.author }}
         </v-chip>
-        <v-card-title class="text-subtitle-2">Categoría:</v-card-title>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
+          >Categoría:</v-card-title
+        >
         <v-chip class="ma-2" color="teal" text-color="white">
           <v-avatar left>
             <v-icon>mdi-file</v-icon>
           </v-avatar>
-          {{ itemSelected.categoria }}
+          {{ category }}
         </v-chip>
-        <v-card-title class="text-subtitle-2">Fecha creación:</v-card-title>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
+          >Fecha creación:</v-card-title
+        >
         <v-chip class="ma-2" color="cyan" text-color="white">
           <v-avatar left>
             <v-icon>mdi-calendar-range</v-icon>
           </v-avatar>
           {{ createdAdDoc }}
         </v-chip>
-        <v-card-title class="text-subtitle-2"
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
           >Tickets Relacionados:</v-card-title
         >
         <v-chip class="ma-2" color="green" text-color="white">
@@ -670,7 +710,7 @@ export default {
     selectedItem: 0,
     progress: null,
     loading: false,
-    dialog: true,
+    dialog: false,
     snackbar: false,
     search: "",
     title: "",
@@ -717,6 +757,9 @@ export default {
     dialogShowphp: false,
     ticket: "",
     createdAdDoc: null,
+    category: "",
+    selectA: "",
+    selectC: "",
   }),
   components: {
     WelcomeHome,
@@ -728,10 +771,10 @@ export default {
       this.author = valor;
       //console.log(this.categoria);
     },
-    changeState(valor) {
+    changeState(valorC) {
       this.categoria = "";
-      this.categoria = valor;
-      this.enabledPHP = valor == "Boletines" ? true : false;
+      this.categoria = valorC;
+      this.enabledPHP = valorC == "Boletines" ? true : false;
       //console.log(this.categoria);
     },
     signOut() {
@@ -747,6 +790,9 @@ export default {
           let itemEdit = {
             title: this.title,
             description: this.description,
+            author: this.selectA,
+            category: this.selectC,
+            ticket: this.ticket,
           };
 
           const docRef = doc(db, "documents", this.itemSelected.id);
@@ -755,13 +801,9 @@ export default {
             itemEdit.pdfFile = await this.uploadTaskPromise(this.filePDFData);
           }
 
-          if (this.enabledPHP && this.filePHPData) {
-            itemEdit.phpFile = await this.uploadTaskPromise(this.filePHPData);
-          }
-
           await updateDoc(docRef, itemEdit);
           await this.getDocuments();
-          this.itemSelected = {};
+          this.itemSelected = { title: "" };
           this.loading = false;
           this.snackbar = true;
           this.dialogEdit = false;
@@ -777,13 +819,25 @@ export default {
       }
     },
     editFileDialog() {
+      //*opciones de la ventana
+
       this.enabledPDF = false;
-      this.enabledPHP = false;
+      this.enabledPHP =
+        this.itemSelected.category == "Boletines" ? true : false;
+
       this.filePDFData = null;
       this.filePHPData = null;
-
+      //* son los elementos de la ventana
       this.title = this.itemSelected.title;
       this.description = this.itemSelected.description;
+      this.ticket = this.itemSelected.ticket;
+      this.category = this.itemSelected.category;
+      this.selectA = this.itemSelected.author;
+      this.selectC = this.itemSelected.category;
+      this.contentEditor = this.itemSelected.phpFile;
+      //*esto esta al momento de guardar
+      this.author = this.itemSelected.author;
+      this.category = this.itemSelected.category;
 
       //this.filePDFData = this.itemSelected.pdfFile;
       //this.filePHPData = this.itemSelected.phpFile;
@@ -907,11 +961,13 @@ export default {
         author: this.author,
         description: this.description,
         createdAd: Timestamp.fromDate(new Date()),
-        categoria: this.categoria,
-        phpFile: this.contentEditor,
+        category: this.categoria,
         ticket: this.ticket,
         pdfFile: "",
       };
+
+      newDoc.phpFile = this.categoria == "Boletines" ? this.contentEditor : "";
+
       console.log(newDoc);
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
@@ -952,10 +1008,13 @@ export default {
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
+      this.category = this.itemSelected.category;
       this.contentEditor = item.phpFile;
       this.createdAdDoc = item.createdAd
         ? item.createdAd.toDate().toLocaleDateString()
         : "";
+
+      console.log(this.itemSelected);
     },
     addFileDialog() {
       this.title = "";
@@ -1015,7 +1074,7 @@ export default {
 <style lang="css">
 @import "~vue2-editor/dist/vue2-editor.css";
 
-/* Import the Quill styles you want */
+/*Import the Quill styles you want */
 @import "~quill/dist/quill.core.css";
 @import "~quill/dist/quill.bubble.css";
 @import "~quill/dist/quill.snow.css";
