@@ -7,10 +7,20 @@
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
     <v-dialog
-      v-model="dialogDel"
+      v-model="dialogShowphp"
       transition="dialog-top-transition"
-      max-width="600"
+      max-width="1200"
     >
+      <v-container>
+        <v-card>
+          <v-card-text>
+            <vue-editor
+              :editorToolbar="customToolbar"
+              v-model="contentEditor"
+            ></vue-editor>
+          </v-card-text>
+        </v-card>
+      </v-container>
     </v-dialog>
 
     <!-- DIALOG EDITAR -->
@@ -316,6 +326,15 @@
                           @change="(valor) => changeState(valor)"
                         ></v-select>
                       </v-col>
+                      <v-col>
+                        <v-text-field
+                          outlined
+                          dense
+                          v-model="ticket"
+                          label="Ticket Relacionado"
+                          required
+                        ></v-text-field>
+                      </v-col>
                     </v-row>
                     <v-textarea
                       outlined
@@ -360,16 +379,15 @@
                   </v-col>
                   <v-col cols="6" v-show="enabledPHP">
                     <v-container>
-                      <v-card-title>Script Php</v-card-title>
+                      <v-card-title>Script PHP</v-card-title>
                       <v-card-subtitle
                         >Copia y pega tu código php para subir a la
                         plataforma</v-card-subtitle
                       >
                       <vue-editor
-                        editorToolbar="{}"
+                        :editorToolbar="customToolbar"
                         v-model="contentEditor"
                       ></vue-editor>
-                      <div>{{ contentEditor }}</div>
                     </v-container>
                   </v-col>
                 </v-row>
@@ -564,21 +582,21 @@
           <v-avatar left>
             <v-icon>mdi-account-circle</v-icon>
           </v-avatar>
-          Alexis Bustamante
+          {{ itemSelected.author }}
         </v-chip>
         <v-card-title class="text-subtitle-2">Categoría:</v-card-title>
         <v-chip class="ma-2" color="teal" text-color="white">
           <v-avatar left>
             <v-icon>mdi-file</v-icon>
           </v-avatar>
-          Boletines
+          {{ itemSelected.categoria }}
         </v-chip>
         <v-card-title class="text-subtitle-2">Fecha creación:</v-card-title>
         <v-chip class="ma-2" color="cyan" text-color="white">
           <v-avatar left>
             <v-icon>mdi-calendar-range</v-icon>
           </v-avatar>
-          01/01/2023
+          {{ createdAdDoc }}
         </v-chip>
         <v-card-title class="text-subtitle-2"
           >Tickets Relacionados:</v-card-title
@@ -587,7 +605,7 @@
           <v-avatar left>
             <v-icon>mdi-ticket-confirmation</v-icon>
           </v-avatar>
-          376958
+          {{ itemSelected.ticket }}
         </v-chip>
       </v-card>
     </v-navigation-drawer>
@@ -647,6 +665,7 @@ export default {
       fullName: "Administrador",
       email: usradm,
     },
+    customToolbar: [["code-block"]],
     dialogDel: false,
     selectedItem: 0,
     progress: null,
@@ -696,6 +715,8 @@ export default {
     ],
     contentEditor: "",
     dialogShowphp: false,
+    ticket: "",
+    createdAdDoc: null,
   }),
   components: {
     WelcomeHome,
@@ -778,7 +799,7 @@ export default {
       try {
         await deleteDoc(doc(db, "documents", this.itemSelected.id));
         //console.log("documento eliminado ", this.itemSelected);
-        this.itemSelected = {};
+        this.itemSelected = { title: "" };
         this.dialogDel = false;
         this.pdfsrc = "";
         await this.getDocuments(); //recargo lista.
@@ -888,6 +909,7 @@ export default {
         createdAd: Timestamp.fromDate(new Date()),
         categoria: this.categoria,
         phpFile: this.contentEditor,
+        ticket: this.ticket,
         pdfFile: "",
       };
       console.log(newDoc);
@@ -925,11 +947,15 @@ export default {
         }
       }
     },
+
     wacthpdf(item) {
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
-      //console.log(item);
+      this.contentEditor = item.phpFile;
+      this.createdAdDoc = item.createdAd
+        ? item.createdAd.toDate().toLocaleDateString()
+        : "";
     },
     addFileDialog() {
       this.title = "";
@@ -937,16 +963,23 @@ export default {
       this.phpFile = "";
       this.pdfFile = "";
       this.dialog = true;
+      this.ticket = "";
+
+      //this.contentEditor = item.phpFile;
     },
     DownloadFromUrl(item) {
-      var link = document.createElement("a");
-      link.href = item.phpFile;
-      link.download = item.title + ".php";
-      link.target = "_blank";
-      document.body.appendChild(link);
+      this.contentEditor = "";
+      this.contentEditor = item.phpFile;
+      this.dialogShowphp = true;
+      // TODO: este codigo era el antiguo
+      // var link = document.createElement("a");
+      // link.href = item.phpFile;
+      // link.download = item.title + ".php";
+      // link.target = "_blank";
+      // document.body.appendChild(link);
 
-      link.click();
-      document.body.removeChild(link);
+      // link.click();
+      // document.body.removeChild(link);
     },
   },
   computed: {
