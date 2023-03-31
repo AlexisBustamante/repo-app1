@@ -16,8 +16,8 @@
               <v-card-title class="text-h6">
                 {{ item.title }}
               </v-card-title>
-              <v-card-text class="white text--primary">
-                <p>
+              <v-card-text class="text--primary">
+                <p style="color: white">
                   {{ item.description }}
                 </p>
               </v-card-text>

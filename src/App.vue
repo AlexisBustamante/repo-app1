@@ -454,9 +454,15 @@
       <v-spacer></v-spacer>
 
       <v-responsive max-width="90">
-        <v-btn class="mx-7" color="#11334d" fab @click="pdfsrc = ''">
+        <!-- <v-btn class="mx-7" color="#11334d" fab @click="pdfsrc = ''">
           <v-icon> mdi-help-circle-outline </v-icon>
-        </v-btn>
+        </v-btn> -->
+        <v-switch
+          class="mx-7 mt-5"
+          v-model="$vuetify.theme.dark"
+          inset
+          persistent-hint
+        ></v-switch>
         <!-- <v-text-field dense flat hide-details rounded solo-inverted></v-text-field> -->
       </v-responsive>
     </v-app-bar>
@@ -535,7 +541,7 @@
               size="28"></v-avatar> -->
       </v-navigation-drawer>
 
-      <v-sheet class="pl-16 pa-3" color="#11334d" height="60" width="100%">
+      <v-sheet class="pl-16 pa-3" color="#11334d" height="130" width="100%">
         <v-row>
           <v-col cols="1">
             <v-icon @click="getDocuments()" color="white">mdi-reload</v-icon>
@@ -552,6 +558,35 @@
               rounded
               solo-inverted
             ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-combobox
+              class="mt-0"
+              v-model="chips"
+              :items="itemsCategory"
+              chips
+              dense
+              clearable
+              label="Categorias"
+              multiple
+              solo
+              rounded
+            >
+              <template v-slot:selection="{ attrs, item, select, selected }">
+                <v-chip
+                  v-bind="attrs"
+                  :input-value="selected"
+                  close
+                  color="primary"
+                  @click="select"
+                  @click:close="remove(item)"
+                >
+                  <strong>{{ item }}</strong>
+                </v-chip>
+              </template>
+            </v-combobox>
           </v-col>
         </v-row>
       </v-sheet>
@@ -590,8 +625,15 @@
       app
       clipped
       right
+      :mini-variant="mini"
     >
-      <v-card>
+      <v-list-item class="px-2">
+        <v-btn icon @click.stop="mini = !mini">
+          <v-icon v-if="mini">mdi-chevron-left</v-icon>
+          <v-icon v-else>mdi-chevron-right</v-icon>
+        </v-btn>
+      </v-list-item>
+      <v-card v-if="!mini">
         <v-card-title class="text-subtitle-2 pb-0">Titulo:</v-card-title>
         <v-card-text class="pb-0">{{ itemSelected.title }}</v-card-text>
         <v-card-title class="text-subtitle-2 pb-0">Descripción:</v-card-title>
@@ -705,6 +747,9 @@ export default {
       fullName: "Administrador",
       email: usradm,
     },
+    chips: [],
+    itemsCategory: ["Boletines", "Manuales"],
+    mini: false,
     customToolbar: [["code-block"]],
     dialogDel: false,
     selectedItem: 0,
@@ -766,6 +811,9 @@ export default {
     VueEditor,
   },
   methods: {
+    remove(item) {
+      this.chips.splice(this.chips.indexOf(item), 1);
+    },
     changeStateA(valor) {
       this.author = "";
       this.author = valor;
@@ -848,7 +896,7 @@ export default {
       this.dialogDel = true;
     },
     async DeleteDoc() {
-      console.log(this.itemSelected);
+      //console.log(this.itemSelected);
 
       try {
         await deleteDoc(doc(db, "documents", this.itemSelected.id));
@@ -873,9 +921,22 @@ export default {
         this.dialogErr = true;
       }
     },
+    assignDataPDF(event) {
+      this.filePDFData = null;
+      this.filePDFData = event[0];
+      //this.filePDFData.name = this.getFileNameWithTime(this.filePDFData.name);
+      console.log(this.filePDFData);
+    },
     getFileExtension(filename) {
       //metodo que obtiene la extension del archivo
       return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+    },
+    getFileNameWithTime(fileName) {
+      return (
+        fileName.slice(0, fileName.lastIndexOf(".")) +
+        new Date().getTime().toString() +
+        ".pdf"
+      );
     },
     async getDocuments() {
       this.pdfList = [];
@@ -888,7 +949,13 @@ export default {
     },
     async uploadTaskPromise(fileData) {
       return new Promise(function (resolve, reject) {
-        const docRef = ref(storage, `documents/` + fileData.name);
+        const docRef = ref(
+          storage,
+          `documents/` +
+            fileData.name.slice(0, fileData.name.lastIndexOf(".")) +
+            new Date().getTime().toString() +
+            ".pdf"
+        );
         const uploadTask = uploadBytesResumable(docRef, fileData);
 
         uploadTask.on(
@@ -899,10 +966,10 @@ export default {
             //console.log("Upload is " + progress + "% done");
             switch (snapshot.state) {
               case "paused":
-                console.log("Upload is paused");
+                //console.log("Upload is paused");
                 break;
               case "running":
-                console.log("Upload is running");
+                //console.log("Upload is running");
                 break;
             }
           },
@@ -945,11 +1012,6 @@ export default {
       this.filePHPData = null;
       this.filePDFData = null;
     },
-    assignDataPDF(event) {
-      this.filePDFData = null;
-      this.filePDFData = event[0];
-      //console.log(this.filePDFData);
-    },
     assignDataPHP(event) {
       this.filePHPData = null;
       this.filePHPData = event[0];
@@ -964,11 +1026,13 @@ export default {
         category: this.categoria,
         ticket: this.ticket,
         pdfFile: "",
+        fileName:
+          `documents/` + this.getFileNameWithTime(this.filePDFData.name),
       };
-
+      console.log(newDoc);
       newDoc.phpFile = this.categoria == "Boletines" ? this.contentEditor : "";
 
-      console.log(newDoc);
+      //console.log(newDoc);
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
         //subir el primer archivo pdf.
@@ -1014,7 +1078,7 @@ export default {
         ? item.createdAd.toDate().toLocaleDateString()
         : "";
 
-      console.log(this.itemSelected);
+      //console.log(this.itemSelected);
     },
     addFileDialog() {
       this.title = "";
@@ -1023,6 +1087,7 @@ export default {
       this.pdfFile = "";
       this.dialog = true;
       this.ticket = "";
+      this.contentEditor = "";
 
       //this.contentEditor = item.phpFile;
     },
@@ -1051,9 +1116,20 @@ export default {
       return keywords;
     },
     searching() {
-      if (!this.search) return this.pdfList;
+      let arrayTemp = [];
+      arrayTemp = this.pdfList;
+      if (this.chips.length > 0) {
+        //*primer filtro por Categoria
+        arrayTemp = this.pdfList.filter((el) => {
+          if (this.chips.indexOf(el.category) > -1) {
+            return el;
+          }
+        });
+      }
+      if (!this.search) return arrayTemp;
+
       const search = this.search.toLowerCase();
-      return this.pdfList.filter((item) => {
+      return arrayTemp.filter((item) => {
         const text = item.title.toLowerCase();
         return text.indexOf(search) > -1;
       });
