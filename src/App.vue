@@ -785,7 +785,7 @@ export default {
     filePDFData: null,
     filePHPData: null,
     dialogErr: false,
-    dialogLogin: false,
+    dialogLogin: true,
     dialogEdit: false,
     email: "",
     password: "",
