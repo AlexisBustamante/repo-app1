@@ -6,9 +6,28 @@
       <v-icon>mdi-circle</v-icon>
       <v-icon>mdi-triangle</v-icon>
     </v-system-bar> -->
+
+    <!-- DIALOGPARA VER -->
+    <v-dialog
+      v-model="dialogShowphp"
+      transition="dialog-top-transition"
+      max-width="1200"
+    >
+      <v-container>
+        <v-card>
+          <v-card-text>
+            <vue-editor
+              :editorToolbar="customToolbar"
+              v-model="contentEditor"
+            ></vue-editor>
+          </v-card-text>
+        </v-card>
+      </v-container>
+    </v-dialog>
+
     <!-- DIALOG EDITAR -->
     <v-row justify="center">
-      <v-dialog v-model="dialogEdit" persistent max-width="600px">
+      <v-dialog v-model="dialogEdit" persistent max-width="1200px">
         <v-card>
           <v-toolbar v-show="loading ? false : true" color="#11334d">
             <span class="text-h5" style="color: white">Editar Documento</span>
@@ -40,88 +59,114 @@
             </v-container>
             <v-container v-if="loading ? false : true">
               <v-form ref="formEditDocument">
-                <v-text-field
-                  outlined
-                  v-model="title"
-                  label="Title"
-                  :rules="rules"
-                  required
-                ></v-text-field>
-                <v-textarea
-                  outlined
-                  v-model="description"
-                  label="Description"
-                  required
-                ></v-textarea>
-
-                <v-row align="center"> </v-row>
                 <v-row>
-                  <v-col cols="10">
-                    <v-file-input
-                      :disabled="!enabledPDF"
-                      prepend-icon="mdi-file-pdf-box"
-                      outlined
-                      chips
-                      multiple
-                      counter
-                      dense
-                      show-size
-                      accept=".pdf"
-                      label="attach pdf file"
-                      @change="assignDataPDF"
-                    ></v-file-input>
-                  </v-col>
                   <v-col>
-                    <v-checkbox
-                      v-model="enabledPDF"
-                      hide-details
-                      class="shrink mr-2 mt-0"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-
-                <v-row>
-                  <v-col cols="10">
-                    <v-file-input
-                      :disabled="!enabledPHP"
-                      prepend-icon="mdi-language-php"
+                    <v-text-field
                       outlined
                       dense
-                      chips
-                      show-size
-                      multiple
-                      counter
-                      accept=".php"
-                      label="attach PHP file"
-                      @change="assignDataPHP"
-                    ></v-file-input>
+                      v-model="title"
+                      label="Titulo"
+                      :rules="rules"
+                      required
+                    ></v-text-field>
+                    <v-row>
+                      <v-col>
+                        <v-select
+                          :items="itemsAuthors"
+                          label="Autor"
+                          v-model="selectA"
+                          dense
+                          outlined
+                          @change="(valor) => changeStateA(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          :items="itemsCategoria"
+                          v-model="selectC"
+                          label="Categoría"
+                          dense
+                          outlined
+                          @change="(valor) => changeState(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-text-field
+                          outlined
+                          dense
+                          v-model="ticket"
+                          label="Ticket Relacionado"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-textarea
+                      outlined
+                      dense
+                      v-model="description"
+                      label="Description"
+                      required
+                    ></v-textarea>
+                    <v-row>
+                      <v-col cols="8">
+                        <v-file-input
+                          prepend-icon="mdi-file-pdf-box"
+                          outlined
+                          :disabled="!enabledPDF"
+                          chips
+                          multiple
+                          counter
+                          dense
+                          show-size
+                          accept=".pdf"
+                          label="attach pdf file"
+                          @change="assignDataPDF"
+                        ></v-file-input>
+                      </v-col>
+                      <v-col>
+                        <v-checkbox
+                          v-model="enabledPDF"
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+
+                    <v-card-actions v-if="loading ? false : true">
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click.prevent="cancelDialogEdit()"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click.prevent="editDocument()"
+                      >
+                        Edit
+                      </v-btn>
+                    </v-card-actions>
                   </v-col>
-                  <v-col>
-                    <v-checkbox
-                      v-model="enabledPHP"
-                      hide-details
-                      class="shrink mr-2 mt-0"
-                    ></v-checkbox>
+                  <v-col cols="6" v-show="enabledPHP">
+                    <v-container>
+                      <v-card-title>Script PHP</v-card-title>
+                      <v-card-subtitle
+                        >Modifica o copia y pega tu código php para subir a la
+                        plataforma</v-card-subtitle
+                      >
+                      <vue-editor
+                        :editorToolbar="customToolbar"
+                        v-model="contentEditor"
+                      ></vue-editor>
+                    </v-container>
                   </v-col>
                 </v-row>
               </v-form>
               <small>*indicates required field</small>
             </v-container>
           </v-card-text>
-
-          <v-card-actions v-if="loading ? false : true">
-            <v-spacer></v-spacer>
-            <v-btn
-              color="red darken-1"
-              text
-              @click.prevent="cancelDialogEdit()"
-            >
-              Close
-            </v-btn>
-            <v-btn color="blue darken-1" text @click.prevent="editDocument()">
-              Edit
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -235,7 +280,7 @@
       </v-card>
     </v-dialog>
 
-    <!-- FORMULARIO DE INGRESO QUE PUEDE SER UN COMPONENTE. -->
+    <!-- SNACKVAR PARA MENSAJES -->
     <v-snackbar
       :timeout="timeout"
       v-model="snackbar"
@@ -247,8 +292,10 @@
         >{{ snacktype.msg }}.
       </p>
     </v-snackbar>
+
+    <!-- // todo: DIALOG NUEVO -->
     <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-dialog v-model="dialog" persistent max-width="1200px">
         <v-card>
           <v-toolbar v-show="loading ? false : true" color="#11334d">
             <span class="text-h5" style="color: white">Nuevo Documento</span>
@@ -280,38 +327,103 @@
             </v-container>
             <v-container v-if="loading ? false : true">
               <v-form ref="formNewDocument">
-                <v-text-field
-                  outlined
-                  v-model="title"
-                  label="Title"
-                  :rules="rules"
-                  required
-                ></v-text-field>
-                <v-textarea
-                  outlined
-                  v-model="description"
-                  label="Description"
-                  required
-                ></v-textarea>
                 <v-row>
-                  <v-col cols="12">
-                    <v-file-input
-                      prepend-icon="mdi-file-pdf-box"
+                  <v-col>
+                    <v-text-field
                       outlined
-                      chips
-                      multiple
-                      counter
                       dense
-                      show-size
-                      accept=".pdf"
-                      label="attach pdf file"
-                      @change="assignDataPDF"
-                      :rules="[(v) => !!v || 'File is mandatory']"
-                    ></v-file-input>
+                      v-model="title"
+                      label="Titulo"
+                      :rules="rules"
+                      required
+                    ></v-text-field>
+                    <v-row>
+                      <v-col>
+                        <v-select
+                          :items="itemsAuthors"
+                          label="Autor"
+                          dense
+                          outlined
+                          @change="(valor) => changeStateA(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          :items="itemsCategoria"
+                          label="Categoría"
+                          dense
+                          outlined
+                          @change="(valor) => changeState(valor)"
+                        ></v-select>
+                      </v-col>
+                      <v-col>
+                        <v-text-field
+                          outlined
+                          dense
+                          v-model="ticket"
+                          label="Ticket Relacionado"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-textarea
+                      outlined
+                      dense
+                      v-model="description"
+                      label="Description"
+                      required
+                    ></v-textarea>
+                    <v-row>
+                      <v-col cols="12">
+                        <v-file-input
+                          prepend-icon="mdi-file-pdf-box"
+                          outlined
+                          chips
+                          multiple
+                          counter
+                          dense
+                          show-size
+                          accept=".pdf"
+                          label="attach pdf file"
+                          @change="assignDataPDF"
+                        ></v-file-input>
+                      </v-col>
+                    </v-row>
+                    <v-card-actions v-if="loading ? false : true">
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click.prevent="cancelDialog()"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click.prevent="SaveNewDoc()"
+                      >
+                        Save
+                      </v-btn>
+                    </v-card-actions>
+                  </v-col>
+                  <v-col cols="6" v-show="enabledPHP">
+                    <v-container>
+                      <v-card-title>Script PHP</v-card-title>
+                      <v-card-subtitle
+                        >Copia y pega tu código php para subir a la
+                        plataforma</v-card-subtitle
+                      >
+                      <vue-editor
+                        :editorToolbar="customToolbar"
+                        v-model="contentEditor"
+                      ></vue-editor>
+                    </v-container>
                   </v-col>
                 </v-row>
 
-                <v-row>
+                <!-- 
+                <v-row v-show="enabledPHP">
                   <v-col cols="12">
                     <v-file-input
                       prepend-icon="mdi-language-php"
@@ -324,24 +436,13 @@
                       accept=".php"
                       label="attach PHP file"
                       @change="assignDataPHP"
-                      :rules="[(v) => !!v || 'File is mandatory']"
                     ></v-file-input>
                   </v-col>
-                </v-row>
+                </v-row> -->
               </v-form>
               <small>*indicates required field</small>
             </v-container>
           </v-card-text>
-
-          <v-card-actions v-if="loading ? false : true">
-            <v-spacer></v-spacer>
-            <v-btn color="red darken-1" text @click.prevent="cancelDialog()">
-              Close
-            </v-btn>
-            <v-btn color="blue darken-1" text @click.prevent="SaveNewDoc()">
-              Save
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-row>
@@ -353,13 +454,19 @@
       <v-spacer></v-spacer>
 
       <v-responsive max-width="90">
-        <v-btn class="mx-7" color="#11334d" fab @click="pdfsrc = ''">
+        <!-- <v-btn class="mx-7" color="#11334d" fab @click="pdfsrc = ''">
           <v-icon> mdi-help-circle-outline </v-icon>
-        </v-btn>
+        </v-btn> -->
+        <v-switch
+          class="mx-7 mt-5"
+          v-model="$vuetify.theme.dark"
+          inset
+          persistent-hint
+        ></v-switch>
         <!-- <v-text-field dense flat hide-details rounded solo-inverted></v-text-field> -->
       </v-responsive>
     </v-app-bar>
-
+    <!-- BARRA LATERAL 1 -->
     <v-navigation-drawer v-model="drawer" app width="400">
       <v-navigation-drawer
         v-model="drawer"
@@ -434,7 +541,7 @@
               size="28"></v-avatar> -->
       </v-navigation-drawer>
 
-      <v-sheet class="pl-16 pa-3" color="#11334d" height="60" width="100%">
+      <v-sheet class="pl-16 pa-3" color="#11334d" height="130" width="100%">
         <v-row>
           <v-col cols="1">
             <v-icon @click="getDocuments()" color="white">mdi-reload</v-icon>
@@ -453,6 +560,35 @@
             ></v-text-field>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col>
+            <v-combobox
+              class="mt-0"
+              v-model="chips"
+              :items="itemsCategory"
+              chips
+              dense
+              clearable
+              label="Categorias"
+              multiple
+              solo
+              rounded
+            >
+              <template v-slot:selection="{ attrs, item, select, selected }">
+                <v-chip
+                  v-bind="attrs"
+                  :input-value="selected"
+                  close
+                  color="primary"
+                  @click="select"
+                  @click:close="remove(item)"
+                >
+                  <strong>{{ item }}</strong>
+                </v-chip>
+              </template>
+            </v-combobox>
+          </v-col>
+        </v-row>
       </v-sheet>
 
       <v-list-item-group v-model="selectedItem" color="primary">
@@ -469,17 +605,6 @@
             <v-list-item-subtitle>
               {{ item.description }}
             </v-list-item-subtitle>
-            <v-list-item-subtitle class="pa-1">
-              <v-icon color="primary" x-large @click="DownloadFromUrl(item)"
-                >mdi-language-php</v-icon
-              >
-              <!-- 
-                        <a style="text-decoration: none;" :href=item.urlExamplePDF :download="item.filePDF">
-                            <v-btn rounded color="error" dark>
-                                <v-icon>mdi-file-pdf-box</v-icon>
-                            </v-btn>
-                        </a> -->
-            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
@@ -494,22 +619,90 @@
           </v-list> -->
     </v-navigation-drawer>
 
-    <!--LA COLUMNA DERECHA <v-navigation-drawer app clipped right>
-          <v-list lines="three">
-            <v-list-item v-for="n in 5" :key="n" link>
-              <v-list-item-content>
-                <v-list-item-title>botones de descarga {{ n }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-navigation-drawer> -->
+    <!-- LA COLUMNA DERECHA -->
+    <v-navigation-drawer
+      v-show="itemSelected.title != '' ? true : false"
+      app
+      clipped
+      right
+      :mini-variant="mini"
+    >
+      <v-list-item class="px-2">
+        <v-btn icon @click.stop="mini = !mini">
+          <v-icon v-if="mini">mdi-chevron-left</v-icon>
+          <v-icon v-else>mdi-chevron-right</v-icon>
+        </v-btn>
+      </v-list-item>
+      <v-card v-if="!mini">
+        <v-card-title class="text-subtitle-2 pb-0">Titulo:</v-card-title>
+        <v-card-text class="pb-0">{{ itemSelected.title }}</v-card-text>
+        <v-card-title class="text-subtitle-2 pb-0">Descripción:</v-card-title>
+        <v-card-text>{{ itemSelected.description }}</v-card-text>
+        <v-card-title
+          v-if="itemSelected.category == 'Boletines' ? true : false"
+          class="text-subtitle-2 pb-0"
+          >Script PHP:</v-card-title
+        >
+        <v-chip
+          v-if="itemSelected.category == 'Boletines' ? true : false"
+          class="ma-2"
+          color="primary"
+          text-color="white"
+          @click="DownloadFromUrl(itemSelected)"
+        >
+          <v-avatar left>
+            <v-icon>mdi-language-php</v-icon>
+          </v-avatar>
+          Ver Script
+        </v-chip>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0">Autor:</v-card-title>
+        <v-chip class="ma-2" color="indigo" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-account-circle</v-icon>
+          </v-avatar>
+          {{ itemSelected.author }}
+        </v-chip>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
+          >Categoría:</v-card-title
+        >
+        <v-chip class="ma-2" color="teal" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-file</v-icon>
+          </v-avatar>
+          {{ category }}
+        </v-chip>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
+          >Fecha creación:</v-card-title
+        >
+        <v-chip class="ma-2" color="cyan" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-calendar-range</v-icon>
+          </v-avatar>
+          {{ createdAdDoc }}
+        </v-chip>
+        <v-card-title class="text-subtitle-2 pb-0 pt-0"
+          >Tickets Relacionados:</v-card-title
+        >
+        <v-chip class="ma-2" color="green" text-color="white">
+          <v-avatar left>
+            <v-icon>mdi-ticket-confirmation</v-icon>
+          </v-avatar>
+          {{ itemSelected.ticket }}
+        </v-chip>
+      </v-card>
+    </v-navigation-drawer>
 
     <v-main>
       <!--  -->
       <v-container>
         <v-row v-if="pdfsrc">
           <!-- <img :src="pdfsrc" alt=""> -->
-          <iframe :src="pdfsrc2" height="1200px" width="100%"></iframe>
+          <iframe
+            style="margin-top: 50px"
+            :src="pdfsrc2"
+            height="1200px"
+            width="100%"
+          ></iframe>
         </v-row>
         <v-row v-else>
           <welcome-home></welcome-home>
@@ -543,7 +736,10 @@ import {
   getDocs,
   deleteDoc,
   updateDoc,
+  Timestamp,
 } from "./firebase.js";
+
+import { VueEditor } from "vue2-editor/dist/vue2-editor.core.js";
 
 export default {
   data: () => ({
@@ -551,6 +747,10 @@ export default {
       fullName: "Administrador",
       email: usradm,
     },
+    chips: [],
+    itemsCategory: ["Boletines", "Manuales"],
+    mini: false,
+    customToolbar: [["code-block"]],
     dialogDel: false,
     selectedItem: 0,
     progress: null,
@@ -560,6 +760,9 @@ export default {
     search: "",
     title: "",
     description: "",
+    author: "",
+    categoria: "",
+    itemsCategoria: ["Boletines", "Manuales"],
     vertical: true,
     itemSelected: { title: "" },
     pdfsrc: null,
@@ -582,18 +785,46 @@ export default {
     filePDFData: null,
     filePHPData: null,
     dialogErr: false,
-    dialogLogin: true,
+    dialogLogin: false,
     dialogEdit: false,
     email: "",
     password: "",
     enabled: false,
     enabledPDF: false,
     enabledPHP: false,
+    itemsAuthors: [
+      "Alexis Bustamante",
+      "Pablo Guiñazú",
+      "Jesús Osorio",
+      "Pablo Ormero",
+    ],
+    contentEditor: "",
+    dialogShowphp: false,
+    ticket: "",
+    createdAdDoc: null,
+    category: "",
+    selectA: "",
+    selectC: "",
   }),
   components: {
     WelcomeHome,
+    VueEditor,
   },
   methods: {
+    remove(item) {
+      this.chips.splice(this.chips.indexOf(item), 1);
+    },
+    changeStateA(valor) {
+      this.author = "";
+      this.author = valor;
+      //console.log(this.categoria);
+    },
+    changeState(valorC) {
+      this.categoria = "";
+      this.categoria = valorC;
+      this.enabledPHP = valorC == "Boletines" ? true : false;
+      //console.log(this.categoria);
+    },
     signOut() {
       this.dialogLogin = true;
     },
@@ -601,13 +832,15 @@ export default {
       this.dialogEdit = false;
     },
     async editDocument() {
-      this.loading = true;
-
       if (this.$refs.formEditDocument.validate()) {
+        this.loading = true;
         try {
           let itemEdit = {
             title: this.title,
             description: this.description,
+            author: this.selectA,
+            category: this.selectC,
+            ticket: this.ticket,
           };
 
           const docRef = doc(db, "documents", this.itemSelected.id);
@@ -616,13 +849,9 @@ export default {
             itemEdit.pdfFile = await this.uploadTaskPromise(this.filePDFData);
           }
 
-          if (this.enabledPHP && this.filePHPData) {
-            itemEdit.phpFile = await this.uploadTaskPromise(this.filePHPData);
-          }
-
           await updateDoc(docRef, itemEdit);
           await this.getDocuments();
-          this.itemSelected = {};
+          this.itemSelected = { title: "" };
           this.loading = false;
           this.snackbar = true;
           this.dialogEdit = false;
@@ -638,13 +867,25 @@ export default {
       }
     },
     editFileDialog() {
+      //*opciones de la ventana
+
       this.enabledPDF = false;
-      this.enabledPHP = false;
+      this.enabledPHP =
+        this.itemSelected.category == "Boletines" ? true : false;
+
       this.filePDFData = null;
       this.filePHPData = null;
-
+      //* son los elementos de la ventana
       this.title = this.itemSelected.title;
       this.description = this.itemSelected.description;
+      this.ticket = this.itemSelected.ticket;
+      this.category = this.itemSelected.category;
+      this.selectA = this.itemSelected.author;
+      this.selectC = this.itemSelected.category;
+      this.contentEditor = this.itemSelected.phpFile;
+      //*esto esta al momento de guardar
+      this.author = this.itemSelected.author;
+      this.category = this.itemSelected.category;
 
       //this.filePDFData = this.itemSelected.pdfFile;
       //this.filePHPData = this.itemSelected.phpFile;
@@ -655,13 +896,14 @@ export default {
       this.dialogDel = true;
     },
     async DeleteDoc() {
-      console.log(this.itemSelected);
+      //console.log(this.itemSelected);
 
       try {
         await deleteDoc(doc(db, "documents", this.itemSelected.id));
-        console.log("documento eliminado ", this.itemSelected);
-        this.itemSelected = {};
+        //console.log("documento eliminado ", this.itemSelected);
+        this.itemSelected = { title: "" };
         this.dialogDel = false;
+        this.pdfsrc = "";
         await this.getDocuments(); //recargo lista.
       } catch (error) {
         console.log(error);
@@ -679,9 +921,22 @@ export default {
         this.dialogErr = true;
       }
     },
+    assignDataPDF(event) {
+      this.filePDFData = null;
+      this.filePDFData = event[0];
+      //this.filePDFData.name = this.getFileNameWithTime(this.filePDFData.name);
+      console.log(this.filePDFData);
+    },
     getFileExtension(filename) {
       //metodo que obtiene la extension del archivo
       return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+    },
+    getFileNameWithTime(fileName) {
+      return (
+        fileName.slice(0, fileName.lastIndexOf(".")) +
+        new Date().getTime().toString() +
+        ".pdf"
+      );
     },
     async getDocuments() {
       this.pdfList = [];
@@ -694,7 +949,13 @@ export default {
     },
     async uploadTaskPromise(fileData) {
       return new Promise(function (resolve, reject) {
-        const docRef = ref(storage, `documents/` + fileData.name);
+        const docRef = ref(
+          storage,
+          `documents/` +
+            fileData.name.slice(0, fileData.name.lastIndexOf(".")) +
+            new Date().getTime().toString() +
+            ".pdf"
+        );
         const uploadTask = uploadBytesResumable(docRef, fileData);
 
         uploadTask.on(
@@ -705,10 +966,10 @@ export default {
             //console.log("Upload is " + progress + "% done");
             switch (snapshot.state) {
               case "paused":
-                console.log("Upload is paused");
+                //console.log("Upload is paused");
                 break;
               case "running":
-                console.log("Upload is running");
+                //console.log("Upload is running");
                 break;
             }
           },
@@ -751,31 +1012,35 @@ export default {
       this.filePHPData = null;
       this.filePDFData = null;
     },
-    assignDataPDF(event) {
-      this.filePDFData = null;
-      this.filePDFData = event[0];
-      //console.log(this.filePDFData);
-    },
     assignDataPHP(event) {
       this.filePHPData = null;
       this.filePHPData = event[0];
-      console.log(this.filePHPData);
+      //console.log(this.filePHPData);
     },
     async SaveNewDoc() {
       let newDoc = {
         title: this.title,
+        author: this.author,
         description: this.description,
-        phpFile: "",
+        createdAd: Timestamp.fromDate(new Date()),
+        category: this.categoria,
+        ticket: this.ticket,
         pdfFile: "",
+        fileName:
+          `documents/` + this.getFileNameWithTime(this.filePDFData.name),
       };
+      console.log(newDoc);
+      newDoc.phpFile = this.categoria == "Boletines" ? this.contentEditor : "";
 
+      //console.log(newDoc);
       //aca valido que todos los cmapos oblgatorios esten sino no se logra lamacenar nada.
       if (this.$refs.formNewDocument.validate()) {
         //subir el primer archivo pdf.
         this.loading = true;
         try {
-          newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
-          newDoc.phpFile = await this.uploadTaskPromise(this.filePHPData);
+          if (this.filePDFData) {
+            newDoc.pdfFile = await this.uploadTaskPromise(this.filePDFData);
+          }
           // una vez que los 2 archivos subieron
           //a firebase se crear el registro en la base de datos
           const docRef = await addDoc(collection(db, "documents"), newDoc);
@@ -802,11 +1067,18 @@ export default {
         }
       }
     },
+
     wacthpdf(item) {
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
-      //console.log(item);
+      this.category = this.itemSelected.category;
+      this.contentEditor = item.phpFile;
+      this.createdAdDoc = item.createdAd
+        ? item.createdAd.toDate().toLocaleDateString()
+        : "";
+
+      //console.log(this.itemSelected);
     },
     addFileDialog() {
       this.title = "";
@@ -814,16 +1086,24 @@ export default {
       this.phpFile = "";
       this.pdfFile = "";
       this.dialog = true;
+      this.ticket = "";
+      this.contentEditor = "";
+
+      //this.contentEditor = item.phpFile;
     },
     DownloadFromUrl(item) {
-      var link = document.createElement("a");
-      link.href = item.phpFile;
-      link.download = item.title + ".php";
-      link.target = "_blank";
-      document.body.appendChild(link);
+      this.contentEditor = "";
+      this.contentEditor = item.phpFile;
+      this.dialogShowphp = true;
+      // TODO: este codigo era el antiguo
+      // var link = document.createElement("a");
+      // link.href = item.phpFile;
+      // link.download = item.title + ".php";
+      // link.target = "_blank";
+      // document.body.appendChild(link);
 
-      link.click();
-      document.body.removeChild(link);
+      // link.click();
+      // document.body.removeChild(link);
     },
   },
   computed: {
@@ -836,9 +1116,20 @@ export default {
       return keywords;
     },
     searching() {
-      if (!this.search) return this.pdfList;
+      let arrayTemp = [];
+      arrayTemp = this.pdfList;
+      if (this.chips.length > 0) {
+        //*primer filtro por Categoria
+        arrayTemp = this.pdfList.filter((el) => {
+          if (this.chips.indexOf(el.category) > -1) {
+            return el;
+          }
+        });
+      }
+      if (!this.search) return arrayTemp;
+
       const search = this.search.toLowerCase();
-      return this.pdfList.filter((item) => {
+      return arrayTemp.filter((item) => {
         const text = item.title.toLowerCase();
         return text.indexOf(search) > -1;
       });
@@ -855,3 +1146,12 @@ export default {
   },
 };
 </script>
+
+<style lang="css">
+@import "~vue2-editor/dist/vue2-editor.css";
+
+/*Import the Quill styles you want */
+@import "~quill/dist/quill.core.css";
+@import "~quill/dist/quill.bubble.css";
+@import "~quill/dist/quill.snow.css";
+</style>

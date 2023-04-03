@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -13,16 +14,19 @@
         box-sizing: border-box;
     }
 
+
     .encabezado {
         display: flex;
         justify-content: space-between;
         padding: 10px;
     }
 
+
     .logo {
         width: 75px;
         height: 75px;
     }
+
 
     .recuadro {
         border: 1px solid black;
@@ -31,6 +35,7 @@
         margin-left: 5px;
     }
 
+
     .folio {
         display: flex;
         align-items: center;
@@ -38,11 +43,13 @@
         justify-content: end;
     }
 
+
     .recuadro_2 {
         border: 1px solid black;
         padding: 5px;
         margin-bottom: 5px;
     }
+
 
     table {
         width: 100%;
@@ -52,11 +59,13 @@
         font-size: 0.8rem;
     }
 
+
     td,
     th {
         border: 1px solid black;
         padding: 4px 8px;
     }
+
 
     .ctn-enc {
         display: flex;
@@ -65,11 +74,13 @@
         margin-bottom: 5px;
     }
 
+
     .datosGeneral {
         display: flex;
         flex-direction: column;
         padding: 5px;
     }
+
 
     .datosAsig {
         display: flex;
@@ -77,10 +88,12 @@
         padding: 3px;
     }
 
+
     .rec_fila {
         border-bottom: 1px solid black;
         text-align: center;
     }
+
 
     .sub_firmas {
         margin-top: 15px;
@@ -89,17 +102,20 @@
         flex-direction: column;
     }
 
+
     .firma {
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 
+
     .firmas {
         margin-top: 25px;
         display: flex;
         justify-content: space-around;
     }
+
 
     .totales {
         padding: 10px;
@@ -109,11 +125,13 @@
         justify-content: end;
     }
 
+
     .texto {
         font-size: 12px;
     }
     </style>
 </head>
+
 
 <body>
     <?php 
@@ -148,6 +166,7 @@
                             <td>MES</td>
                             <td>AÑO</td>
                         </tr>
+
 
                         <tr>
                             <?php $fecha = explode('/', date('d/m/Y',$mesaPrevia->fecha));?>
@@ -193,6 +212,7 @@
         </div>
     </div>
 
+
     <div class="tbl_acta">
         <table>
             <thead>
@@ -231,6 +251,7 @@
                                                 }
                                             }
                                         }
+
 
                                         if (strrpos(mb_strtolower($observacion), "folio:") !== false || strrpos(mb_strtolower($observacion), "f:") !== false) {
                                             foreach ($parts as $key => $part) {
@@ -300,6 +321,7 @@
                                                         echo 'Ausente';
                                                     }
 
+
                                                     if($mesaPrevia->_inscriptos[$i]->materiaPreviaNota - $nota)
                                                     {
                                                         echo ' con 50/100';
@@ -325,6 +347,7 @@
         </table>
     </div>
 
+
     <div class="sub_firmas">
         <div class="firmas">
             <div class="firma">
@@ -340,6 +363,7 @@
                 <span>Vocal</span>
             </div>
         </div>
+
 
         <div class="totales">
             <div class="tot">
@@ -366,5 +390,6 @@
     </div>
     </div>
 </body>
+
 
 </html>

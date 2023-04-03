@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore/lite';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { config } from '../config/config.js'
 import {
-  collection, getDocs, addDoc, deleteDoc, doc, updateDoc
+  collection, getDocs, addDoc, deleteDoc, doc, updateDoc, Timestamp
 } from 'firebase/firestore/lite';
 import "firebase/storage";
 
@@ -41,5 +41,6 @@ export {
   getDownloadURL,
   doc,
   collection,
-  addDoc
+  addDoc,
+  Timestamp,
 }
