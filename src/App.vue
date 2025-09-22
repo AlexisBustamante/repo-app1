@@ -1170,15 +1170,15 @@
       </v-card>
     </v-navigation-drawer>
 
-    <!-- SIDEBAR DERECHO MEJORADO -->
+    <!-- SIDEBAR DERECHO MEJORADO CON COLAPSO -->
     <v-navigation-drawer
-      v-show="itemSelected.title != ''"
+      v-model="drawerRight"
       app
       clipped
       right
-      width="400"
+      :width="miniRight ? 80 : 400"
       class="sidebar-right-modern"
-      :mini-variant="miniRight"
+      :class="{ 'sidebar-right-collapsed': miniRight }"
     >
       <!-- Header del sidebar derecho -->
       <v-card flat class="sidebar-right-header" color="primary" dark>
@@ -1208,25 +1208,55 @@
       <!-- Contenido del sidebar -->
       <v-card flat class="sidebar-right-content" v-if="!miniRight">
         <v-card-text class="pa-0">
-          <!-- Información principal -->
-          <div class="document-info-section">
-            <v-card-title class="text-h6 pa-4 pb-2">
-              <v-icon class="mr-2">mdi-information</v-icon>
-              Información General
-            </v-card-title>
-            
-            <v-card-text class="pt-0">
-              <div class="info-item mb-4">
-                <label class="info-label">Título</label>
-                <p class="info-value">{{ itemSelected.title }}</p>
-              </div>
-              
-              <div class="info-item mb-4">
-                <label class="info-label">Descripción</label>
-                <p class="info-value">{{ itemSelected.description }}</p>
-              </div>
-            </v-card-text>
+          <!-- Estado vacío cuando no hay documento seleccionado -->
+          <div v-if="!itemSelected.title" class="empty-state">
+            <div class="text-center pa-8">
+              <v-icon size="80" color="grey lighten-2" class="mb-4">mdi-file-search-outline</v-icon>
+              <h3 class="text-h6 font-weight-bold mb-2 text--secondary">¡Bienvenido!</h3>
+              <p class="text-body-2 text--secondary mb-6">
+                Selecciona un documento de la lista para ver sus detalles, información y opciones de edición aquí.
+              </p>
+              <v-card flat class="pa-4 mb-4" color="blue lighten-5">
+                <div class="d-flex align-center">
+                  <v-icon color="primary" class="mr-3">mdi-information</v-icon>
+                  <div class="text-left">
+                    <div class="text-subtitle-2 font-weight-bold">Tip:</div>
+                    <div class="text-caption">Usa la búsqueda global o filtra por categoría para encontrar documentos rápidamente.</div>
+                  </div>
+                </div>
+              </v-card>
+              <v-btn
+                color="primary"
+                outlined
+                @click="showGlobalSearch = true"
+              >
+                <v-icon left>mdi-magnify</v-icon>
+                Buscar Documentos
+              </v-btn>
+            </div>
           </div>
+
+          <!-- Información del documento cuando está seleccionado -->
+          <div v-else>
+            <!-- Información principal -->
+            <div class="document-info-section">
+              <v-card-title class="text-h6 pa-4 pb-2">
+                <v-icon class="mr-2">mdi-information</v-icon>
+                Información General
+              </v-card-title>
+              
+              <v-card-text class="pt-0">
+                <div class="info-item mb-4">
+                  <label class="info-label">Título</label>
+                  <p class="info-value">{{ itemSelected.title }}</p>
+                </div>
+                
+                <div class="info-item mb-4">
+                  <label class="info-label">Descripción</label>
+                  <p class="info-value">{{ itemSelected.description }}</p>
+                </div>
+              </v-card-text>
+            </div>
 
           <!-- Metadatos -->
           <div class="metadata-section">
@@ -1366,8 +1396,33 @@
               </v-row>
             </v-card-text>
           </div>
+          </div>
         </v-card-text>
       </v-card>
+
+      <!-- Estado colapsado -->
+      <div v-else class="sidebar-right-collapsed-content">
+        <div class="text-center pa-4">
+          <v-icon size="32" color="primary">mdi-file-document-outline</v-icon>
+          <p class="text-caption mt-2 text--secondary">Detalles</p>
+          <v-divider class="my-2"></v-divider>
+          <v-tooltip right>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                v-bind="attrs"
+                v-on="on"
+                @click="miniRight = false"
+                class="mt-2"
+              >
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </template>
+            <span>Expandir panel</span>
+          </v-tooltip>
+        </div>
+      </div>
     </v-navigation-drawer>
 
     <v-main>
@@ -2870,5 +2925,75 @@ export default {
   .code-editor {
     min-height: 250px !important;
   }
+}
+
+/* Estilos para el sidebar derecho colapsado */
+.sidebar-right-collapsed {
+  width: 80px !important;
+}
+
+.sidebar-right-collapsed-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.sidebar-right-collapsed-content .v-icon {
+  transition: all 0.3s ease;
+}
+
+.sidebar-right-collapsed-content .v-btn:hover .v-icon {
+  transform: scale(1.1);
+}
+
+/* Estado vacío del sidebar */
+.empty-state {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.empty-state .v-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Mejoras para el sidebar derecho */
+.sidebar-right-modern {
+  transition: width 0.3s ease !important;
+  border-left: 1px solid #e0e0e0;
+}
+
+.sidebar-right-modern.sidebar-right-collapsed {
+  border-left: 1px solid #e0e0e0;
+}
+
+/* Tema oscuro para estados colapsados */
+.theme--dark .sidebar-right-collapsed-content {
+  background: #2d2d2d;
+}
+
+.theme--dark .empty-state {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
+}
+
+.theme--dark .sidebar-right-modern {
+  border-left-color: #424242;
 }
 </style>
