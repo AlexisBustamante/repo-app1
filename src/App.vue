@@ -1429,13 +1429,94 @@
       <!--  -->
       <v-container>
         <v-row v-if="pdfsrc">
-          <!-- <img :src="pdfsrc" alt=""> -->
-          <iframe
-            style="margin-top: 50px"
-            :src="pdfsrc2"
-            height="1200px"
-            width="100%"
-          ></iframe>
+          <!-- Indicador de carga del PDF -->
+          <v-col cols="12" v-if="pdfLoading" class="text-center pa-8">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+              size="64"
+              width="6"
+              class="mb-4"
+            ></v-progress-circular>
+            <h3 class="text-h6 mb-2">Cargando documento PDF...</h3>
+            <p class="text-body-2 text--secondary">
+              Por favor espera mientras se carga el documento
+            </p>
+          </v-col>
+
+          <!-- Error al cargar PDF -->
+          <v-col cols="12" v-else-if="pdfError" class="text-center pa-8">
+            <v-icon size="80" color="error" class="mb-4">mdi-alert-circle</v-icon>
+            <h3 class="text-h6 mb-2 text--error">Error al cargar el documento</h3>
+            <p class="text-body-2 text--secondary mb-4">
+              No se pudo cargar el documento PDF. Esto puede deberse a:
+            </p>
+            <v-list dense class="text-left mb-4">
+              <v-list-item>
+                <v-list-item-icon>
+                  <v-icon color="grey">mdi-circle-small</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title class="text-caption">
+                    Problemas de conectividad
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-icon>
+                  <v-icon color="grey">mdi-circle-small</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title class="text-caption">
+                    El archivo PDF no está disponible
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-icon>
+                  <v-icon color="grey">mdi-circle-small</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title class="text-caption">
+                    Restricciones de seguridad del navegador
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+            <v-btn
+              color="primary"
+              @click="retryPdfLoad"
+              class="mr-2"
+            >
+              <v-icon left>mdi-refresh</v-icon>
+              Reintentar
+            </v-btn>
+            <v-btn
+              color="secondary"
+              @click="downloadPdfDirectly"
+            >
+              <v-icon left>mdi-download</v-icon>
+              Descargar PDF
+            </v-btn>
+          </v-col>
+
+          <!-- Iframe del PDF -->
+          <v-col cols="12" v-else>
+            <div class="pdf-container">
+              <iframe
+                ref="pdfIframe"
+                class="pdf-iframe"
+                :src="pdfsrc2"
+                @load="onPdfLoad"
+                @error="onPdfError"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"
+                loading="lazy"
+                allow="fullscreen"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Visualizador de PDF"
+              ></iframe>
+            </div>
+          </v-col>
         </v-row>
         <v-row v-else>
           <welcome-home></welcome-home>
@@ -1500,6 +1581,10 @@ export default {
     itemSelected: { title: "" },
     pdfsrc: null,
     pdfsrc2: null,
+    pdfLoading: false,
+    pdfError: false,
+    pdfRetryCount: 0,
+    pdfLoadTimeout: null,
     timeout: 5000, //3seg
     drawer: null,
     pdfFile: "",
@@ -1774,6 +1859,8 @@ export default {
         this.itemSelected = { title: "" };
         this.dialogDel = false;
         this.pdfsrc = "";
+        this.pdfsrc2 = "";
+        this.clearPdfStates(); // Limpiar estados de PDF
         await this.getDocuments(); //recargo lista.
       } catch (error) {
         console.log(error);
@@ -1952,6 +2039,34 @@ export default {
     },
 
     wacthpdf(item) {
+      // Validar que el item tenga un archivo PDF válido
+      if (!item || !item.pdfFile) {
+        this.snackbar = true;
+        this.snacktype = {
+          color: "error",
+          icon: "mdi-alert-circle-outline",
+          msg: "El documento no tiene un archivo PDF asociado",
+        };
+        return;
+      }
+
+      // Validar que la URL del PDF sea válida
+      if (!this.isValidUrl(item.pdfFile)) {
+        this.snackbar = true;
+        this.snacktype = {
+          color: "error",
+          icon: "mdi-alert-circle-outline",
+          msg: "La URL del PDF no es válida",
+        };
+        return;
+      }
+
+      // Resetear estados de error y carga
+      this.pdfError = false;
+      this.pdfLoading = true;
+      this.pdfRetryCount = 0;
+
+      // Asignar valores
       this.pdfsrc = item.pdfFile;
       this.pdfsrc2 = item.pdfFile;
       this.itemSelected = item;
@@ -1960,6 +2075,20 @@ export default {
       this.createdAdDoc = item.createdAd
         ? item.createdAd.toDate().toLocaleDateString()
         : "";
+
+      // Configurar timeout para detectar si el PDF no carga
+      this.pdfLoadTimeout = setTimeout(() => {
+        if (this.pdfLoading) {
+          this.pdfError = true;
+          this.pdfLoading = false;
+          this.snackbar = true;
+          this.snacktype = {
+            color: "warning",
+            icon: "mdi-clock-alert-outline",
+            msg: "El PDF está tardando en cargar. Verifica tu conexión.",
+          };
+        }
+      }, 10000); // 10 segundos de timeout
 
       //console.log(this.itemSelected);
     },
@@ -1987,6 +2116,159 @@ export default {
 
       // link.click();
       // document.body.removeChild(link);
+    },
+
+    // Métodos para manejo de PDFs
+    isValidUrl(string) {
+      try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch (_) {
+        return false;
+      }
+    },
+
+    onPdfLoad() {
+      // Limpiar timeout y estados de carga
+      if (this.pdfLoadTimeout) {
+        clearTimeout(this.pdfLoadTimeout);
+        this.pdfLoadTimeout = null;
+      }
+      
+      this.pdfLoading = false;
+      this.pdfError = false;
+      
+      // Mostrar mensaje de éxito
+      this.snackbar = true;
+      this.snacktype = {
+        color: "success",
+        icon: "mdi-check-circle-outline",
+        msg: "Documento PDF cargado correctamente",
+      };
+    },
+
+    onPdfError() {
+      // Limpiar timeout
+      if (this.pdfLoadTimeout) {
+        clearTimeout(this.pdfLoadTimeout);
+        this.pdfLoadTimeout = null;
+      }
+      
+      this.pdfLoading = false;
+      this.pdfError = true;
+      
+      // Detectar si es un error de extensión del navegador
+      const isExtensionError = this.detectExtensionError();
+      
+      // Mostrar mensaje de error específico
+      this.snackbar = true;
+      this.snacktype = {
+        color: "error",
+        icon: "mdi-alert-circle-outline",
+        msg: isExtensionError 
+          ? "Error causado por extensiones del navegador. Intenta deshabilitar extensiones o usar el modo incógnito."
+          : "Error al cargar el documento PDF",
+      };
+    },
+
+    detectExtensionError() {
+      // Detectar errores comunes de extensiones
+      const errorMessages = [
+        'MessageNotSentError',
+        'cookieManager.injectClientScript',
+        'Could not establish connection',
+        'Receiving end does not exist'
+      ];
+      
+      // Verificar si hay errores en la consola que coincidan
+      return errorMessages.some(msg => 
+        window.console && 
+        (window.console.error.toString().includes(msg) || 
+         window.console.warn.toString().includes(msg))
+      );
+    },
+
+    retryPdfLoad() {
+      if (this.pdfRetryCount >= 3) {
+        this.snackbar = true;
+        this.snacktype = {
+          color: "warning",
+          icon: "mdi-alert-circle-outline",
+          msg: "Se ha alcanzado el número máximo de reintentos",
+        };
+        return;
+      }
+
+      this.pdfRetryCount++;
+      this.pdfError = false;
+      this.pdfLoading = true;
+
+      // Forzar recarga del iframe
+      if (this.$refs.pdfIframe) {
+        const iframe = this.$refs.pdfIframe;
+        const currentSrc = iframe.src;
+        iframe.src = '';
+        setTimeout(() => {
+          iframe.src = currentSrc;
+        }, 100);
+      }
+
+      // Configurar nuevo timeout
+      this.pdfLoadTimeout = setTimeout(() => {
+        if (this.pdfLoading) {
+          this.pdfError = true;
+          this.pdfLoading = false;
+        }
+      }, 10000);
+    },
+
+    downloadPdfDirectly() {
+      if (!this.pdfsrc2) {
+        this.snackbar = true;
+        this.snacktype = {
+          color: "error",
+          icon: "mdi-alert-circle-outline",
+          msg: "No hay PDF disponible para descargar",
+        };
+        return;
+      }
+
+      try {
+        const link = document.createElement('a');
+        link.href = this.pdfsrc2;
+        link.download = `${this.itemSelected.title || 'documento'}.pdf`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        this.snackbar = true;
+        this.snacktype = {
+          color: "success",
+          icon: "mdi-download",
+          msg: "Descarga iniciada correctamente",
+        };
+      } catch (error) {
+        console.error('Error al descargar PDF:', error);
+        this.snackbar = true;
+        this.snacktype = {
+          color: "error",
+          icon: "mdi-alert-circle-outline",
+          msg: "Error al iniciar la descarga del PDF",
+        };
+      }
+    },
+
+    // Método para limpiar estados de PDF
+    clearPdfStates() {
+      this.pdfLoading = false;
+      this.pdfError = false;
+      this.pdfRetryCount = 0;
+      if (this.pdfLoadTimeout) {
+        clearTimeout(this.pdfLoadTimeout);
+        this.pdfLoadTimeout = null;
+      }
     },
   },
   computed: {
@@ -2026,6 +2308,51 @@ export default {
     this.pdfsrc = "";
     //this.pdfList = data.datos;
     this.pdfListAll = this.pdfList;
+    
+    // Configurar manejo de errores de consola para detectar errores de extensiones
+    this.setupConsoleErrorHandling();
+  },
+
+  methods: {
+    // Método para configurar el manejo de errores de consola
+    setupConsoleErrorHandling() {
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      console.error = (...args) => {
+        const errorMessage = args.join(' ');
+        if (this.isExtensionErrorMessage(errorMessage)) {
+          // No mostrar errores de extensiones en la consola para evitar spam
+          return;
+        }
+        originalError.apply(console, args);
+      };
+      
+      console.warn = (...args) => {
+        const warnMessage = args.join(' ');
+        if (this.isExtensionErrorMessage(warnMessage)) {
+          // No mostrar warnings de extensiones en la consola para evitar spam
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+    },
+
+    isExtensionErrorMessage(message) {
+      const extensionErrorPatterns = [
+        'MessageNotSentError',
+        'cookieManager.injectClientScript',
+        'Could not establish connection',
+        'Receiving end does not exist',
+        'Unchecked runtime.lastError',
+        'chrome-extension://',
+        'moz-extension://'
+      ];
+      
+      return extensionErrorPatterns.some(pattern => 
+        message.includes(pattern)
+      );
+    },
   },
 };
 </script>
@@ -2995,5 +3322,80 @@ export default {
 
 .theme--dark .sidebar-right-modern {
   border-left-color: #424242;
+}
+
+/* Estilos para el contenedor de PDF */
+.pdf-container {
+  margin-top: 50px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #f5f5f5;
+  position: relative;
+}
+
+.pdf-iframe {
+  width: 100%;
+  height: 1200px;
+  border: none;
+  display: block;
+  background: white;
+}
+
+/* Mejoras para el tema oscuro */
+.theme--dark .pdf-container {
+  border-color: #424242;
+  background: #2d2d2d;
+}
+
+.theme--dark .pdf-iframe {
+  background: #1e1e1e;
+}
+
+/* Responsive para PDF */
+@media (max-width: 960px) {
+  .pdf-iframe {
+    height: 800px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pdf-container {
+    margin-top: 20px;
+  }
+  
+  .pdf-iframe {
+    height: 600px;
+  }
+}
+
+/* Animación de carga para el PDF */
+.pdf-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pdf-container.loading::before {
+  opacity: 1;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 </style>
